@@ -99,7 +99,6 @@ const unifiedServer = (req, res) => {
             console.log('Response Status Code : ', statusCode,
                 '\nResponse Payload: ', JsonPayload
             );
-
         });
     });
 };
