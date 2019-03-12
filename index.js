@@ -9,6 +9,7 @@
  const http = require('http');
  const url  = require('url');
  const StringDecoder = require('string_decoder').StringDecoder;
+ const routes = require('./libs/router');
 
  //Creating Server
  const server = http.createServer((req, res) => {
@@ -40,16 +41,38 @@
     req.on('end', () => {
         buffer += decoder.end();
 
-        //Sending response
-        res.end('Hello From Sachin\n');
+        //Create data object
+        const data = {
+            headers,
+            method,
+            queryStringObject,
+            trimmedPath,
+            payload : buffer
+        };
 
-        //Log
-        console.log('Request Path: ', trimmedPath,
-            '\nRequest Method: ', method,
-            '\nRequest Query String Object: ', queryStringObject,
-            '\nRequest Headers: ', headers,
-            '\nRequest Buffer (payload or body): ', buffer
-        );
+        //Choose handler
+        const choosenHandler = routes.hasOwnProperty(trimmedPath) ? routes[trimmedPath] : routes.notFound;
+        choosenHandler(data, (statusCode, payload) => {
+            
+            //Set default http status code
+            statusCode = typeof(statusCode) === 'number' ? statusCode : 200;
+
+            //Set default payload as an empty object
+            payload = typeof(payload) === 'object' ? payload : {};
+
+            //JSON response
+            const JsonPayload = JSON.stringify(payload);
+
+            //Sending response
+            res.writeHead(statusCode)
+            res.end(JsonPayload);
+
+            //Log
+            console.log('Response Status Code : ', statusCode,
+                '\nResponse Payload: ', JsonPayload
+            );
+
+        });
     });
  });
 
