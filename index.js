@@ -7,13 +7,39 @@
 
 //Dependencies
 const http = require('http');
+const https = require('https');
 const url  = require('url');
 const StringDecoder = require('string_decoder').StringDecoder;
 const routes = require('./libs/router');
+const config = require('./config'); 
+const fileSystem = require('fs');
 
-//Creating Server
-const server = http.createServer((req, res) => {
+//Initialize HTTP Server
+const httpServer = http.createServer((req, res) => {
+    unifiedServer(req, res);
+});
 
+//Starting HTTP Server
+httpServer.listen(config.httpPort,() => {
+console.log(`For HTTP :\n  Server is listening at port ${config.httpPort} in ${config.envName} mode`);
+});
+
+//Initialize HTTPS Server
+const httpsServerOptions = {
+    key : fileSystem.readFileSync('./https/key.pem'),
+    cert : fileSystem.readFileSync('./https/cert.pem')
+};
+const httpsServer = https.createServer(httpsServerOptions, (req, res) => {
+    unifiedServer(req, res);
+});
+
+//Starting HTTPS Server
+httpsServer.listen(config.httpsPort,() => {
+console.log(`For HTTPS :\n  Server is listening at port ${config.httpsPort} in ${config.envName} mode`);
+});
+
+//All the server logic for both the http and https server
+const unifiedServer = (req, res) => {
     //Get url and parse it
     const parsedUrl = url.parse(req.url, true);
     
@@ -76,9 +102,4 @@ const server = http.createServer((req, res) => {
 
         });
     });
-});
-
-//Starting server
-server.listen(3000,() => {
-console.log('Server Is Listening at port 3000');
-})
+};
