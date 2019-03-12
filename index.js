@@ -21,8 +21,16 @@
 
     //Get the request methos
     const method = req.method.toUpperCase();
+
+    //Get and parse query string
+    const queryStringObject = parsedUrl.query;
     
-    res.end(`Request Path: ${trimmedPath}\nRequest Method: ${method}\n`);
+    //Sending response
+    res.end('Hello From Sachin\n');
+
+    //Log
+    console.log(`Request Path: ${trimmedPath}\nRequest Method: ${method}\nRequest Query String Object:`, queryStringObject, `\n`);
+
  });
 
  //Starting server
