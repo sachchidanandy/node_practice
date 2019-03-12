@@ -24,12 +24,15 @@
 
     //Get and parse query string
     const queryStringObject = parsedUrl.query;
+
+    //Get headers
+    const headers = req.headers;
     
     //Sending response
     res.end('Hello From Sachin\n');
 
     //Log
-    console.log(`Request Path: ${trimmedPath}\nRequest Method: ${method}\nRequest Query String Object:`, queryStringObject, `\n`);
+    console.log(`Request Path: ${trimmedPath}\nRequest Method: ${method}\nRequest Query String Object:`, queryStringObject, `\nRequest Headers:`, headers);
 
  });
 
