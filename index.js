@@ -18,8 +18,11 @@
     //Get path from parsed url
     const path = parsedUrl.pathname;
     const trimmedPath = path.replace(/^\/|\/$/g, '');
+
+    //Get the request methos
+    const method = req.method.toUpperCase();
     
-    res.end(`Path: ${trimmedPath} \n`);
+    res.end(`Request Path: ${trimmedPath}\nRequest Method: ${method}\n`);
  });
 
  //Starting server
