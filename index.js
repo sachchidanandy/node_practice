@@ -3,16 +3,16 @@
  * 
  * @file index.js
  * @author Sachchidanand
- */
+*/
 
- //Dependencies
- const http = require('http');
- const url  = require('url');
- const StringDecoder = require('string_decoder').StringDecoder;
- const routes = require('./libs/router');
+//Dependencies
+const http = require('http');
+const url  = require('url');
+const StringDecoder = require('string_decoder').StringDecoder;
+const routes = require('./libs/router');
 
- //Creating Server
- const server = http.createServer((req, res) => {
+//Creating Server
+const server = http.createServer((req, res) => {
 
     //Get url and parse it
     const parsedUrl = url.parse(req.url, true);
@@ -37,6 +37,7 @@
     req.on('data', (data) => {
         buffer += decoder.write(data);
     });
+
     //Adding a end event listener which will be called every time
     req.on('end', () => {
         buffer += decoder.end();
@@ -64,7 +65,8 @@
             const JsonPayload = JSON.stringify(payload);
 
             //Sending response
-            res.writeHead(statusCode)
+            res.setHeader('Content-Type', 'application/json');
+            res.writeHead(statusCode);
             res.end(JsonPayload);
 
             //Log
@@ -74,9 +76,9 @@
 
         });
     });
- });
+});
 
- //Starting server
- server.listen(3000,() => {
-    console.log('Server Is Listening at port 3000');
- })
+//Starting server
+server.listen(3000,() => {
+console.log('Server Is Listening at port 3000');
+})
