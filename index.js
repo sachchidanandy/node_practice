@@ -13,6 +13,7 @@ const StringDecoder = require('string_decoder').StringDecoder;
 const routes = require('./libs/router');
 const config = require('./config'); 
 const fileSystem = require('fs');
+const _data = require('./libs/data');
 
 //Initialize HTTP Server
 const httpServer = http.createServer((req, res) => {
