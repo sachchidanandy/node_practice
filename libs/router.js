@@ -1,30 +1,19 @@
 /**
- * Router to handle teh requests.
+ * Router to handle the requests.
  * 
  * @file router.js
  * @author Sachchidanand
 */
 
 //Dependencies
-const user = require('./user');
-
-//Handler for undefined routes
-const notFound = (data, callback) => {
-    //Callback a http status and a payload
-    callback(404, {message : 'Page Not Found'});
-};
-
-//Handler ping to server
-const ping = (data, callback) => {
-    //Callback a http status and a payload
-    callback(200, {});
-};
+const handler = require('./handler');
 
 //Routes path and handlers
-const routes = {
-    'user' : user.getUser,
-    'ping' : ping,
-    'notFound' : notFound
+const router = {
+    'user' : handler.user,
+    'ping' : handler.ping,
+    'notFound' : handler.notFound
 };
 
-module.exports = routes;
+//Export module route
+module.exports = router;

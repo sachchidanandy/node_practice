@@ -11,9 +11,9 @@ const https = require('https');
 const url  = require('url');
 const StringDecoder = require('string_decoder').StringDecoder;
 const routes = require('./libs/router');
-const config = require('./config'); 
+const config = require('./libs/config'); 
 const fileSystem = require('fs');
-const _data = require('./libs/data');
+const _helper = require('./libs/helper');
 
 //Initialize HTTP Server
 const httpServer = http.createServer((req, res) => {
@@ -49,7 +49,7 @@ const unifiedServer = (req, res) => {
     const trimmedPath = path.replace(/^\/|\/$/g, '');
 
     //Get the request methos
-    const method = req.method.toUpperCase();
+    const method = req.method.toLowerCase();
 
     //Get and parse query string
     const queryStringObject = parsedUrl.query;
@@ -69,6 +69,9 @@ const unifiedServer = (req, res) => {
     req.on('end', () => {
         buffer += decoder.end();
 
+        //Convert buffer string into object
+        buffer = _helper.convsertJsonToObject(buffer);
+
         //Create data object
         const data = {
             headers,
@@ -77,9 +80,10 @@ const unifiedServer = (req, res) => {
             trimmedPath,
             payload : buffer
         };
-
+        
         //Choose handler
-        const choosenHandler = routes.hasOwnProperty(trimmedPath) ? routes[trimmedPath] : routes.notFound;
+        const directoryPath = trimmedPath.split('/')[0];
+        const choosenHandler = routes.hasOwnProperty(directoryPath) ? routes[directoryPath] : routes.notFound;
         choosenHandler(data, (statusCode, payload) => {
             
             //Set default http status code
