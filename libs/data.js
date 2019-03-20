@@ -13,7 +13,7 @@ const path = require('path');
 const lib = {};
 
 //Path of data base directry
-lib.baseDir = path.join(__dirname, '/../.data/');
+lib.baseDir = path.join(__dirname, '/../.data');
 
 //Function to write data in file
 lib.create = (dir, file, data, callBack)=> {

@@ -8,6 +8,7 @@
 //Dependencies
 const APP_CONST = require('./appConstants');
 const _user = require('./user');
+const _tocken = require('./tocken');
 
 //Handler module to export
 const handler = {};
@@ -32,6 +33,15 @@ handler.user = (data, callback) => {
         callback(405, APP_CONST.INVALID_METHOD);
     }
 };
+
+//Token service handler
+handler.tocken = (data, callback) => {
+    if (APP_CONST.USERS_METHODS.indexOf(data.method) > -1) {
+        _tocken[data.method](data, callback);
+    } else {
+        callback(405, APP_CONST.INVALID_METHOD);
+    }
+}
 
 //Export module
 module.exports = handler;
