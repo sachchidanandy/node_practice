@@ -10,6 +10,8 @@ const crypto = require('crypto');
 const _secret = require('../https/keys');
 const _appConstant = require('./appConstants');
 const _data = require('./data');
+const queryString = require('querystring');
+const https = require('https');
 
 
 //helper module to export
@@ -197,6 +199,75 @@ helper.validateTocken = (tocken, callBack) => {
             callBack('Tocken ' + _appConstant.NOT_FOUND.message);
         }
     });
+}
+
+/*
+    CURL REQUEST TO SEND SMS
+    ------------------------
+    curl -X POST https://api.twilio.com/2010-04-01/Accounts/ACXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX/Messages.json \
+    --data-urlencode "Body=This is the ship that made the Kessel Run in fourteen parsecs?" \
+    --data-urlencode "From=+15017122661" \
+    --data-urlencode "To=+15558675310" \
+    -u ACXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX:your_auth_token
+
+*/
+helper.sendTwilioSms = (phone, msg, callBack) => {
+    //validate parameters
+    phone = phone.length === 10 && Number(phone) && typeof(phone) === 'string' ? phone : false;
+    msg = msg.trim().length > 0 && msg.trim().length <= 140 && typeof(msg) === 'string' ? msg : false;
+
+    if (phone && msg) {
+        //Configure payload (Body, From, To)
+        const payload = {
+            'From' : _secret.twilio.fromPhone,
+            'To' : '+91'+phone,
+            'Body' : msg
+        };
+
+        //Stringify the payload to suitable for use in a URL query string
+        const stringPayload = queryString.stringify(payload);
+
+        //Configure the request details
+        const requestDetails = {
+            'protocol' : 'https:',
+            'hostname' : 'api.twilio.com',
+            'method' : 'POST',
+            'path' : `/2010-04-01/Accounts/${_secret.twilio.accountSid}/Messages.json`,
+            'auth' : `${_secret.twilio.accountSid}:${_secret.twilio.authTocken}`,
+            'headers' : {
+                'Content-Type' : 'application/x-www-form-urlencoded',
+                'Content-Length' : Buffer.byteLength(stringPayload)
+            }
+        };
+
+        //Instantiate the request object
+        const req = https.request(requestDetails, (res) => {
+            //Status code
+            const status = res.statusCode;
+            //Check status code 
+            if (status === 200 || status === 201) {
+                //callback success
+                callBack(false);
+            } else {
+                //callback with error
+                callBack(`Status code : ${status}`);
+            }
+        });
+
+        //Add error event to request
+        req.on('error', (error) => {
+            callBack(error);
+        });
+
+        //Add the payload
+        req.write(stringPayload);
+        
+        //End or send request
+        req.end();
+
+    } else {
+        callBack('Invalid Parameters');
+    }
 }
 
 //Export Module
