@@ -1,7 +1,8 @@
 const appConstants = {
-    USERS_METHODS : ['get', 'post', 'put', 'delete'],
+    METHOD_LIST : ['get', 'post', 'put', 'delete'],
     TOCKEN_CHAR_POOL : 'QqWwEeRr12qw345TtyyuUIiOoPpBbNnMmaAsSdDfFGgHhJjKkLlZzXxCcVv67890',
     TOCKEN_SIZE : 30,
+    CHECK_ID_SIZE : 15,
     SUCCESS_CODE : 200,
     INTERNAL_SERVER_ERROR : 500,
     CREATE_USER_ERROR : 'Unable to create new user',
@@ -18,7 +19,12 @@ const appConstants = {
     TOCKEN_EXTENDED : 'Expire time of tocken is extended by one hour.',
     DELETE_TOCKEN_ERROR : 'Unable to delete tocken',
     DELETE_TOCKEN : 'Tocken Deleted',
-    TOCKEN_AUTH_ERROR : 'Invalid User Details or Tocken Expired',
+    CREATE_CHECK_ERROR : 'Unable to create check',
+    CREATE_CHECK : 'New check created',
+    INVALID_CHECK : 'Invalid Check Id',
+    CHECK_DELET_SUCCESS : 'Check Deleted Successfully.',
+    CHECK_MISS_MATCH : 'Tocken Id not valid for this user',
+    DELETE_CHECK_ERROR : 'Unable to delete check',
     REQUIRED_FIELDS : {
         _GET_USER : ['phone'],
         _POST_USER : ['firstName', 'lastName', 'phone', 'password', 'TNC'],
@@ -27,7 +33,11 @@ const appConstants = {
         _POST_TOCKEN :['phone', 'password'],
         _GET_TOCKEN :['tocken'],
         _PUT_TOCKEN : ['tocken', 'extend'],
-        _DELETE_TOCKEN : ['tocken']
+        _DELETE_TOCKEN : ['tocken'],
+        _POST_CHECK : ['protocol', 'url', 'method', 'successCode', 'timeoutSeconds'],
+        _GET_CHECK : ['check'],
+        _DELETE_CHECK : ['check'],
+        _PUT_CHECK : ['check']
     },
     USER_CREATED : {
         code : 201,
@@ -52,6 +62,10 @@ const appConstants = {
     NOT_FOUND : {
         code : 404,
         message : 'Not Found.'
+    },
+    NOT_ACCEPTABLE : {
+        code : 406,
+        message : 'Reached Max Limit.'
     }
 };
 

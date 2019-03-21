@@ -12,6 +12,7 @@ const handler = require('./handler');
 const router = {
     'user' : handler.user,
     'tocken' : handler.tocken,
+    'check' : handler.check,
     'ping' : handler.ping,
     'notFound' : handler.notFound
 };

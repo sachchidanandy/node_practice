@@ -8,7 +8,7 @@
 //Dependency
 const crypto = require('crypto');
 const _secret = require('../https/keys');
-const _appConst = require('./appConstants');
+const _appConstant = require('./appConstants');
 const _data = require('./data');
 
 
@@ -32,7 +32,7 @@ helper.validateRequiredFields = (requiredField, data) => {
 
     //Check if all required fields are present in data
     if (! requiredField.every( val => arrayOfKeys.includes(val))) {
-        console.log('missing');
+        console.log('missing', requiredField, arrayOfKeys);
         return false;
     }
 
@@ -77,8 +77,8 @@ helper.validateRequiredFields = (requiredField, data) => {
 
             case 'tocken':
                 value = data[key].split(' ').join('');
-                if ( typeof(value) != 'string' || value.length < _appConst.TOCKEN_SIZE) {
-                    console.log(typeof(value), value, value.length , _appConst.TOCKEN_SIZE);
+                if ( typeof(value) != 'string' || value.length < _appConstant.TOCKEN_SIZE) {
+                    console.log(typeof(value), value, value.length , _appConstant.TOCKEN_SIZE);
                     return false;
                 }
                 break;
@@ -86,6 +86,48 @@ helper.validateRequiredFields = (requiredField, data) => {
             case 'extend':
                 value = data[key];
                 if (typeof(value) != 'boolean' || !value) {
+                    return false;
+                }
+                break;
+
+            case 'protocol':
+                value = data[key].split(' ').join('');
+                if (typeof(value) !== 'string' || ['http', 'https'].indexOf(value) < 0) {
+                    return false;
+                }
+                break;
+
+            case 'url':
+                value = data[key].split(' ').join('');
+                if (typeof(value) !== 'string') {
+                    return false;
+                }
+                break;
+
+            case 'method':
+                value = data[key].split(' ').join('');
+                if (typeof(value) !== 'string' || _appConstant.METHOD_LIST.indexOf(value) < 0) {
+                    return false;
+                }
+                break;
+
+            case 'successCode':
+                value = data[key];
+                if (typeof(value) !== 'object' || !(value instanceof Array) || value.length < 1) {
+                    return false;
+                }
+                break;
+            
+            case 'timeoutSeconds' : 
+                value = data[key].split(' ').join('');
+                if (!Number(value) || value.length < 1) {
+                    return false
+                }
+                break;
+
+            case 'check':
+                value = data[key].split(' ').join('');
+                if (typeof(value) !== 'string' || value.length < _appConstant.CHECK_ID_SIZE) {
                     return false;
                 }
                 break;
@@ -120,7 +162,7 @@ helper.createTocken = (tockenLength = 0) => {
 
     if (tockenLength) {
         let tocken = '';
-        const tockenPool = _appConst.TOCKEN_CHAR_POOL;
+        const tockenPool = _appConstant.TOCKEN_CHAR_POOL;
 
         //Create tocken
         for (let counter = 0; counter < tockenLength; counter++) {
@@ -135,7 +177,7 @@ helper.createTocken = (tockenLength = 0) => {
 }
 
 //Function to validate tocken
-helper.validateTocken = (tocken, phone, callBack) => {
+helper.validateTocken = (tocken, callBack) => {
     _data.read('tockens', tocken, (err, data) => {
         if (!err && data) {
             //Convert JSON data into object
@@ -143,16 +185,16 @@ helper.validateTocken = (tocken, phone, callBack) => {
 
             if (data) {
                 //Check if tocken belongs to that user and haven't expired
-                if (data.phone === phone && data.expires > Date.now()) {
-                    callBack(false);
+                if (data.expires > Date.now()) {
+                    callBack(false, data.phone);
                 } else {
-                    callBack(_appConst.TOCKEN_AUTH_ERROR);
+                    callBack(_appConstant.TOCKEN_EXPIRED);
                 }
             } else {
-                callBack(_appConst.READ_DATA_ERROR);
+                callBack(_appConstant.READ_DATA_ERROR);
             }
         } else {
-            callBack('Tocken ' + _appConst.NOT_FOUND.message);
+            callBack('Tocken ' + _appConstant.NOT_FOUND.message);
         }
     });
 }

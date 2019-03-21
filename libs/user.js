@@ -8,7 +8,7 @@
 //Dependency
 const _helper = require('./helper');
 const _data = require('./data');
-const appConstant  = require('./appConstants');
+const _appConstant  = require('./appConstants');
 
 //User object
 const user = {};
@@ -21,19 +21,19 @@ const user = {};
 */
 user.get = (data, callback) => {
     //Validate required field.
-    const validPayload = _helper.validateRequiredFields(appConstant.REQUIRED_FIELDS._GET_USER, data.queryStringObject);
+    const validPayload = _helper.validateRequiredFields(_appConstant.REQUIRED_FIELDS._GET_USER, data.queryStringObject);
     if (validPayload  === false) {
         //Callback a http status 400 and a error payload
-        return callback(appConstant.BAD_REQUEST.code, {error : appConstant.BAD_REQUEST.message});
+        return callback(_appConstant.BAD_REQUEST.code, {error : _appConstant.BAD_REQUEST.message});
     }
     
     //Validate tocken in header
     const tocken = data.headers.hasOwnProperty('tocken') ? data.headers.tocken : '';
-    _helper.validateTocken(tocken, data.queryStringObject.phone, (err) => {
+    _helper.validateTocken(tocken, (err) => {
         if (err !== false) {
             //Callback a http status 401 and a error payload
             console.log(err);
-            callback(appConstant.UNAUTHORIZED.code, {error : appConstant.UNAUTHORIZED.message});
+            callback(_appConstant.UNAUTHORIZED.code, {error : _appConstant.UNAUTHORIZED.message});
         } else {
             //Read user related data
             _data.read('user',data.queryStringObject.phone,(err, data) => {
@@ -43,18 +43,18 @@ user.get = (data, callback) => {
 
                     if (data === false) {
                         //Sending Error response
-                        callback(appConstant.INTERNAL_SERVER_ERROR, {error : appConstant.READ_DATA_ERROR});
+                        callback(_appConstant.INTERNAL_SERVER_ERROR, {error : _appConstant.READ_DATA_ERROR});
                     } else {
                         //delete password and salt
                         delete data.password;
                         delete data.salt;
                         
                         //Send back response
-                        callback(appConstant.SUCCESS_CODE, data);
+                        callback(_appConstant.SUCCESS_CODE, data);
                     }
                 } else {
                     //Sending Error response
-                    callback(appConstant.INTERNAL_SERVER_ERROR, {error : appConstant.FIND_USER_ERROR});
+                    callback(_appConstant.INTERNAL_SERVER_ERROR, {error : _appConstant.FIND_USER_ERROR});
                 }
             });
         }
@@ -69,17 +69,17 @@ user.get = (data, callback) => {
 */
 user.post = (data, callback) => {
     //Validate required field.
-    const validPayload = _helper.validateRequiredFields(appConstant.REQUIRED_FIELDS._POST_USER, data.payload);
+    const validPayload = _helper.validateRequiredFields(_appConstant.REQUIRED_FIELDS._POST_USER, data.payload);
     if (!validPayload) {
         //Callback a http status 400 and a error payload
-        callback(appConstant.BAD_REQUEST.code, {error : appConstant.BAD_REQUEST.message});
+        callback(_appConstant.BAD_REQUEST.code, {error : _appConstant.BAD_REQUEST.message});
     } else {
         //Check of user doesn't already exist
         _data.read('user', data.payload.phone, (err, userData) => {
 
             if (!err && userData) {
                 //Callback a http status 409 and a error payload
-                callback(appConstant.CONFLICT.code, {error : appConstant.CONFLICT.message});
+                callback(_appConstant.CONFLICT.code, {error : _appConstant.CONFLICT.message});
             } else {
                 //Create hashed password
                 const passwordObject = _helper.createPassword(data.payload.password);
@@ -91,10 +91,10 @@ user.post = (data, callback) => {
                 _data.create('user', data.payload.phone, payload, (err) => {
                     if (err) {
                         //Callback a http status 500 and a error payload
-                        callback(appConstant.INTERNAL_SERVER_ERROR, {error : appConstant.CREATE_USER_ERROR});
+                        callback(_appConstant.INTERNAL_SERVER_ERROR, {error : _appConstant.CREATE_USER_ERROR});
                     } else {
                         //Callback a http status 200 and a success payload
-                        callback(appConstant.USER_CREATED.code, {message : appConstant.USER_CREATED.message});
+                        callback(_appConstant.USER_CREATED.code, {message : _appConstant.USER_CREATED.message});
                     }
                 });
             }
@@ -110,25 +110,25 @@ user.post = (data, callback) => {
 */
 user.put = (data, callback) => {
     //Validate required field.
-    const validPayload = _helper.validateRequiredFields(appConstant.REQUIRED_FIELDS._PUT_USER, data.payload);
+    const validPayload = _helper.validateRequiredFields(_appConstant.REQUIRED_FIELDS._PUT_USER, data.payload);
     if (!validPayload) {
         //Callback a http status 400 and a error payload
-        callback(appConstant.BAD_REQUEST.code, {error : appConstant.BAD_REQUEST.message});
+        callback(_appConstant.BAD_REQUEST.code, {error : _appConstant.BAD_REQUEST.message});
     } else {
         //Validate tocken in header
         const tocken = data.headers.hasOwnProperty('tocken') ? data.headers.tocken : '';
-        _helper.validateTocken(tocken, data.payload.phone, (err) => {
+        _helper.validateTocken(tocken, (err) => {
             if (err !== false) {
                 //Callback a http status 401 and a error payload
                 console.log(err);
-                callback(appConstant.UNAUTHORIZED.code, {error : appConstant.UNAUTHORIZED.message});
+                callback(_appConstant.UNAUTHORIZED.code, {error : _appConstant.UNAUTHORIZED.message});
             } else { 
                 //Check of user already exist
                 _data.read('user', data.payload.phone, (err, userData) => {
 
                     if (err) {
                         //Callback a http status 404 and a error payload
-                        callback(appConstant.NOT_FOUND.code, {error : appConstant.NOT_FOUND.message});
+                        callback(_appConstant.NOT_FOUND.code, {error : _appConstant.NOT_FOUND.message});
                     } else {
                         let passwordObject = {};
                         userData = _helper.convsertJsonToObject(userData);
@@ -145,10 +145,10 @@ user.put = (data, callback) => {
                         _data.update('user', data.payload.phone, payload, (err) => {
                             if (err) {
                                 //Callback a http status 500 and a error payload
-                                callback(appConstant.INTERNAL_SERVER_ERROR, {error : appConstant.UPDATE_USER_ERROR});
+                                callback(_appConstant.INTERNAL_SERVER_ERROR, {error : _appConstant.UPDATE_USER_ERROR});
                             } else {
                                 //Callback a http status 200 and a success payload
-                                callback(appConstant.SUCCESS_CODE, {message : appConstant.USER_UPDATED});
+                                callback(_appConstant.SUCCESS_CODE, {message : _appConstant.USER_UPDATED});
                             }
                         });
                     }
@@ -167,19 +167,19 @@ user.put = (data, callback) => {
 user.delete = (data, callback) => {
 
     //Validate required field.
-    const validPayload = _helper.validateRequiredFields(appConstant.REQUIRED_FIELDS._DELETE_USER, data.queryStringObject);
+    const validPayload = _helper.validateRequiredFields(_appConstant.REQUIRED_FIELDS._DELETE_USER, data.queryStringObject);
     if (validPayload  === false) {
         //Callback a http status 400 and a error payload
-        return callback(appConstant.BAD_REQUEST.code, {error : appConstant.BAD_REQUEST.message});
+        return callback(_appConstant.BAD_REQUEST.code, {error : _appConstant.BAD_REQUEST.message});
     }
     
     //Validate tocken in header
     const tocken = data.headers.hasOwnProperty('tocken') ? data.headers.tocken : '';
-    _helper.validateTocken(tocken, data.queryStringObject.phone, (err) => {
+    _helper.validateTocken(tocken, (err) => {
         if (err !== false) {
             //Callback a http status 401 and a error payload
             console.log(err);
-            callback(appConstant.UNAUTHORIZED.code, {error : appConstant.UNAUTHORIZED.message});
+            callback(_appConstant.UNAUTHORIZED.code, {error : _appConstant.UNAUTHORIZED.message});
         } else {
             //Read user related data
             _data.read('user',data.queryStringObject.phone,(err, userData) => {
@@ -188,15 +188,15 @@ user.delete = (data, callback) => {
                     _data.delete('user',data.queryStringObject.phone,(err) => {
                         if (err) {
                             //Sending Error response
-                            callback(appConstant.INTERNAL_SERVER_ERROR, {message : appConstant.DELETE_USER_ERROR});
+                            callback(_appConstant.INTERNAL_SERVER_ERROR, {message : _appConstant.DELETE_USER_ERROR});
                         } else {
                             //Sending Success response
-                            callback(appConstant.SUCCESS_CODE, {error : appConstant.USER_DELETED});
+                            callback(_appConstant.SUCCESS_CODE, {error : _appConstant.USER_DELETED});
                         }
                     });
                 } else {
                     //Callback a http status 404 and a error payload
-                    callback(appConstant.NOT_FOUND.code, {error : appConstant.NOT_FOUND.message});   
+                    callback(_appConstant.NOT_FOUND.code, {error : _appConstant.NOT_FOUND.message});   
                 }
             });
         }
