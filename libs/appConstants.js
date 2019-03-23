@@ -35,9 +35,10 @@ const appConstants = {
         _PUT_TOCKEN : ['tocken', 'extend'],
         _DELETE_TOCKEN : ['tocken'],
         _POST_CHECK : ['protocol', 'url', 'method', 'successCode', 'timeoutSeconds'],
-        _GET_CHECK : ['check'],
-        _DELETE_CHECK : ['check'],
-        _PUT_CHECK : ['check']
+        _GET_CHECK : ['checkId'],
+        _DELETE_CHECK : ['checkId'],
+        _PUT_CHECK : ['checkId'],
+        _CHECK_FIELD : ['checkId','protocol', 'url', 'method', 'successCode', 'timeoutSeconds', 'phone','lastState']
     },
     USER_CREATED : {
         code : 201,

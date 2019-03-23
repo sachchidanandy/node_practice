@@ -34,7 +34,6 @@ helper.validateRequiredFields = (requiredField, data) => {
 
     //Check if all required fields are present in data
     if (! requiredField.every( val => arrayOfKeys.includes(val))) {
-        console.log('missing', requiredField, arrayOfKeys);
         return false;
     }
 
@@ -80,7 +79,6 @@ helper.validateRequiredFields = (requiredField, data) => {
             case 'tocken':
                 value = data[key].split(' ').join('');
                 if ( typeof(value) != 'string' || value.length < _appConstant.TOCKEN_SIZE) {
-                    console.log(typeof(value), value, value.length , _appConstant.TOCKEN_SIZE);
                     return false;
                 }
                 break;
@@ -127,7 +125,7 @@ helper.validateRequiredFields = (requiredField, data) => {
                 }
                 break;
 
-            case 'check':
+            case 'checkId':
                 value = data[key].split(' ').join('');
                 if (typeof(value) !== 'string' || value.length < _appConstant.CHECK_ID_SIZE) {
                     return false;

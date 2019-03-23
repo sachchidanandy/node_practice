@@ -99,5 +99,18 @@ lib.delete = (dir, file, callBack) => {
     });
 }
 
+//List all filess in the dir
+lib.list = (dir) => {
+    return new Promise(function(resolve, reject) {
+        fileSystem.readdir(`${lib.baseDir}/${dir}/`, (err, fileList) => {
+            if (!err && fileList) {
+                resolve(fileList.map( fileName => fileName.replace('.json', '')));
+            } else {
+                reject(err);
+            }
+        });
+    });
+}
+
 //Export module
 module.exports = lib;

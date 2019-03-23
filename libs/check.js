@@ -34,6 +34,15 @@ check.get = (data, callback) => {
             //Read checks detail
             _data.read('checks', data.queryStringObject.check, (err, checkData) => {
                 if (!err && checkData) {
+                    //Convert JSON string into object
+                    checkData = _helper.convsertJsonToObject(checkData);
+
+                    //delte phone from response object
+                    delete checkData.phone;
+
+                    //delete lastState from response
+                    delete checkObject.lastState;
+
                     //Return success response
                     callback(_appConstant.SUCCESS_CODE, JSON.parse(checkData));
                 } else {
@@ -81,12 +90,14 @@ check.post = (data, callback) => {
 
                             //Create check object
                             const checkObject = {
-                                'id' : checkId,
+                                'checkId' : checkId,
                                 'protocol' : data.payload.protocol,
                                 'url' : data.payload.url,
                                 'method' : data.payload.method,
                                 'successCode' : data.payload.successCode,
-                                'timeoutSeconds' : data.payload.timeoutSeconds
+                                'timeoutSeconds' : data.payload.timeoutSeconds,
+                                'phone' : phone,
+                                'lastState' : false
                             };
 
                             //Save new check
@@ -99,6 +110,12 @@ check.post = (data, callback) => {
                                     //Update user details
                                     _data.update('user', phone, userData, (err) => {
                                         if (!err) {
+                                            //Delete phone from response
+                                            delete checkObject.phone;
+
+                                            //delete lastState from response
+                                            delete checkObject.lastState;
+                                            
                                             //Send sucess response
                                             callback(_appConstant.SUCCESS_CODE, checkObject);
                                         } else {
@@ -248,6 +265,13 @@ check.put = (data, callback) => {
                                     //update check
                                     _data.update('checks', data.payload.check, checkObject, (err) => {
                                         if (!err) {
+                                            //delete phone from response
+                                            delete checkObject.phone;
+
+                                            //delete lastState from response
+                                            delete checkObject.lastState;
+
+                                            //Send back response
                                             callback(_appConstant.SUCCESS_CODE, checkObject);
                                         } else {
                                             //Callback a http status 500 and a error payload
