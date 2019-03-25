@@ -9,9 +9,13 @@
 const url  = require('url');
 const http = require('http');
 const https = require('https');
+const util = require('util');
+const _debug = util.debuglog('worker');
 const _data = require('./data');
 const _helper =require('./helper');
 const _appConstant = require('./appConstants');
+const _log= require('./log');
+
 
 //Worker moduel
 const worker = {};
@@ -21,16 +25,16 @@ worker.loop = () => {
     setInterval(worker.gatherAllChecks, 1000 * 60)
 };
 
-//fetch all checks
+//Fetch all checks
 worker.gatherAllChecks = () => {
     _data.list('checks').then( list => {
         if (list.length > 0) {
             list.map(fileName => worker.fetchCheck(fileName));
         } else {
-            console.log('No checks to execute');
+            _debug('No checks to execute');
         }
     }).catch(err => {
-        console.log(err);
+        _debug(err);
     });
 };
 
@@ -46,13 +50,13 @@ worker.fetchCheck = (checkId) => {
                 if (valideData) {
                     worker.performCheck(checkData);
                 } else {
-                    console.log(`Invalide data found in check ID : ${checkId}`);
+                    _debug(`Invalide data found in check ID : ${checkId}`);
                 }
             } else {
-                console.log(`Invalide data formate in check ID : ${checkId}`);                
+                _debug(`Invalide data formate in check ID : ${checkId}`);                
             }
         } else {
-            console.log(err);
+            _debug(err);
         }
     });
 };
@@ -129,6 +133,7 @@ worker.performCheck = (checkData) => {
 
 //Process the checkout come and update the check data and if needed alert the user
 worker.processCheckOutCome = (checkData, checkOutCome) =>{
+    const currentTime = Date.now();
     //Check for error
     if (!checkOutCome.error && checkOutCome.responseCode) {
         //Decide if the state of url is up or down
@@ -140,32 +145,108 @@ worker.processCheckOutCome = (checkData, checkOutCome) =>{
         //Update checkdata
         const newCheckObject = checkData;
         newCheckObject.lastState = state;
-        newCheckObject.lastCheckTime = Date.now();
+        newCheckObject.lastCheckTime = currentTime;
         _data.update('checks', newCheckObject.checkId, newCheckObject, (err) => {
             if (!err) {
+                //Log response to log file
+                worker.log(checkData,checkOutCome, state, alertUser, currentTime);
                 if (alertUser) {
                     _helper.sendTwilioSms(newCheckObject.phone, `Status of the url : ${newCheckObject.url} is changed and it's ${state}`, (err) => {
                         if (!err) {
-                            console.log(`Alert sent to user for check Id : ${checkData.checkId}`);
+                            _debug(`Alert sent to user for check Id : ${checkData.checkId}`);
                         } else {
-                            console.log(`Unable to sent alert for check Id : ${checkData.checkId}\n Error : ${err}`);
+                            _debug(`Unable to sent alert for check Id : ${checkData.checkId}\n Error : ${err}`);
                         }
                     });
                 } else {
-                    console.log(`No need to send Alert for check Id : ${checkData.checkId}`);                                  
+                    _debug(`No need to send Alert for check Id : ${checkData.checkId}`);                                  
                 }
             } else {
-                console.log(`Unable to update check id : ${checkData.checkId}`);        
+                _debug(`Unable to update check id : ${checkData.checkId}`);        
             }
         });
     } else {
-        console.log(`Error occours in the ping for check id : ${checkData.checkId}`);
+        _debug(`Error occours in the ping for check id : ${checkData.checkId}`);
     }  
+};
+
+//Log response into log file
+worker.log = (checkData, checkOutcome, state, alertRequired, timeOfCheck) => {
+    //Create object to be loged
+    const logObject = {
+        'check' : checkData,
+        'outcome' : checkOutcome,
+        'state' : state,
+        'alert' : alertRequired,
+        'time' : timeOfCheck
+    };
+
+    //Convert object to string
+    const logString = JSON.stringify(logObject);
+
+    //Filename of the log
+    const fileName = checkData.checkId;
+
+    //Log string into file
+    _log.append(fileName, logString, (err) => {
+        if (!err) {
+            _debug('Logging to file succeeded');
+        } else {
+            _debug('Error in logging file');
+        }
+    });
+};
+
+//Log rotation loop
+worker.logRotationLoop = () => {
+    setInterval(worker.rotateLogs,1000 * 60 * 60 * 24);
+};
+
+//Function to rotate logs
+worker.rotateLogs = () => {
+    //List all the non compressed files
+    _log.list(false, (err, logList) => {
+        //Check for the error
+        if (!err && logList && logList.length > 0) {
+            //Compressing data into another file 
+            logList.map( logFileName => {
+                const compFileName = logFileName.replace('.log', `-${new Date().toLocaleDateString()}`);
+                _log.compress(logFileName, compFileName,(err) => {
+                    if (!err) {
+                        _log.truncate(logFileName, (err)=> {
+                            if (!err) {
+                                _debug('Log rotated sucess');
+                            } else {
+                                _debug("Can't able to rotate log");
+                            }
+                        });
+                    } else {
+                        _debug(err);
+                    }
+                });
+            });
+        } else {
+            _debug('No log file to compress');
+        }
+    });
 };
 
 //Init function to exec ute workers
 worker.init = () => {
+    //Console log in yellow
+    console.log('\x1b[33m%s\x1b[0m', 'Background Worker Started');
+    
+    //Execute all the checks immediately
+    worker.gatherAllChecks();
+
+    //Call loop to check status of checks
     worker.loop();
+
+    //Compress all the logs immediately
+    worker.rotateLogs();
+
+    //Calling loop to rotate log
+    worker.logRotationLoop();
 };
 
 //Export worker module

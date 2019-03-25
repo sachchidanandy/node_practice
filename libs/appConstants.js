@@ -25,6 +25,9 @@ const appConstants = {
     CHECK_DELET_SUCCESS : 'Check Deleted Successfully.',
     CHECK_MISS_MATCH : 'Tocken Id not valid for this user',
     DELETE_CHECK_ERROR : 'Unable to delete check',
+    ERROR_OPEN_FILE_APPEND : 'Could not open file in appending',
+    ERROR_FILE_APPEND : 'Error in appending to file',
+    ERROR_FILE_APPEND_CLOSE : 'Error in closing that was being appended',
     REQUIRED_FIELDS : {
         _GET_USER : ['phone'],
         _POST_USER : ['firstName', 'lastName', 'phone', 'password', 'TNC'],

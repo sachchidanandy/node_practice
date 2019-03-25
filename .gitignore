@@ -2,3 +2,5 @@
 https/
 #data
 .data/
+#logs
+.log/

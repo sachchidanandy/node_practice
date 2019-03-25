@@ -12,6 +12,8 @@ const url  = require('url');
 const fileSystem = require('fs');
 const path = require('path');
 const StringDecoder = require('string_decoder').StringDecoder;
+const util = require('util');
+const _debug = util.debuglog('server');
 const _routes = require('./router');
 const _config = require('./config'); 
 const _helper = require('./helper');
@@ -95,9 +97,8 @@ server.unifiedServer = (req, res) => {
             res.end(JsonPayload);
 
             //Log
-            console.log('Response Status Code : ', statusCode,
-                '\nResponse Payload: ', JsonPayload
-            );
+            const colourCode = [200, 201].indexOf(statusCode) > -1 ? '\x1b[32m%s\x1b[0m' : '\x1b[31m%s\x1b[0m'; 
+            _debug(colourCode,`method : ${method}, path : ${trimmedPath}, status: ${statusCode}, response: ${JsonPayload}`);
         });
     });
 };
@@ -106,12 +107,12 @@ server.unifiedServer = (req, res) => {
 server.init = () => {
     //Starting HTTP Server
     server.httpServer.listen(_config.httpPort,() => {
-        console.log(`For HTTP :\n  Server is listening at port ${_config.httpPort} in ${_config.envName} mode`);
+        console.log('\x1b[36m%s\x1b[0m',`For HTTP :\n  Server is listening at port ${_config.httpPort} in ${_config.envName} mode`);
     });
 
     //Starting HTTPS Server
     server.httpsServer.listen(_config.httpsPort,() => {
-        console.log(`For HTTPS :\n  Server is listening at port ${_config.httpsPort} in ${_config.envName} mode`);
+        console.log('\x1b[35m%s\x1b[0m',`For HTTPS :\n  Server is listening at port ${_config.httpsPort} in ${_config.envName} mode`);
     });
 };
 
