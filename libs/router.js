@@ -23,6 +23,8 @@ const router = {
     'api/tocken' : handler.tocken,
     'api/check' : handler.check,
     'ping' : handler.ping,
+    'favicon.ico' : handler.favicon,
+    'public' : handler.public,
     'notFound' : handler.notFound
 };
 

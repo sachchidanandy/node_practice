@@ -15,6 +15,7 @@ const _secret = require('../https/keys');
 const _appConstant = require('./appConstants');
 const _data = require('./data');
 const _templateBaseDir = path.join(__dirname, '../templates/');
+const _publicDir = path.join(__dirname, '../public/');
 const _config = require('./config');
 
 //helper module to export
@@ -340,6 +341,26 @@ helper.interpolate = (htmlString, dataObject) => {
     }
 
     return htmlString;
+};
+
+//Function to get static assets
+helper.getStaticAsset = (fileName) => {
+    return new Promise((resolve, reject) => {
+        //Validate filename
+        fileName = typeof(fileName) === 'string' && fileName.length > 0 ? fileName : false;
+        if (fileName) {
+            //Read file data
+            fileSystem.readFile(`${_publicDir}${fileName}`, (err, buffer) => {
+                if (!err && buffer) {
+                    resolve(buffer);
+                } else {
+                    reject(_appConstant.NOT_FOUND.code);
+                }
+            });
+        } else {
+            reject(_appConstant.NOT_FOUND.code);
+        }
+    });
 };
 
 //Export Module

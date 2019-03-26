@@ -44,7 +44,7 @@ handler.tocken = (data, callback) => {
     } else {
         callback(405, _appConst.INVALID_METHOD);
     }
-}
+};
 
 //Token service handler
 handler.check = (data, callback) => {
@@ -53,7 +53,7 @@ handler.check = (data, callback) => {
     } else {
         callback(405, _appConst.INVALID_METHOD);
     }
-}
+};
 
 //Index page handler
 handler.index = (data, callback) => {
@@ -65,12 +65,72 @@ handler.index = (data, callback) => {
             callback(_appConst.SUCCESS_CODE, finalHtmlString, 'html');
         }).catch(err => {
             console.log(_appConst.RED_COLOUR ,err);
-            callback(_appConst.INTERNAL_SERVER_ERROR, null, 'html');
+            callback(_appConst.INTERNAL_SERVER_ERROR, 'undefined', 'html');
         });
     } else {
-        callback(_appConst.METHOD_NOT_ALLOWED.code, null, 'html');
+        callback(_appConst.METHOD_NOT_ALLOWED.code, 'undefined', 'html');
     };
-}
+};
+
+//Favicon
+handler.favicon = (data, callback) => {
+    //Reject any request that is not get
+    if (data.method === 'get') {
+        //Fetching the favicon data
+        _helper.getStaticAsset('favicon.ico').then(favicon => {
+            callback(_appConst.SUCCESS_CODE, favicon, 'favicon');
+        }).catch(err => {
+            console.log(_appConst.RED_COLOUR ,err);
+            callback(_appConst.INTERNAL_SERVER_ERROR);
+        });
+    } else {
+        callback(_appConst.METHOD_NOT_ALLOWED.code);
+    };
+};
+
+//Public assets
+handler.public = (data, callback) => {
+    //Reject any request that is not get
+    if (data.method === 'get') {
+        //Get the fiel name being requesed
+        const fileName = data.trimmedPath.replace('public/', '').trim();
+        if (fileName.length > 0) {
+            _helper.getStaticAsset(fileName).then(fileData => {
+                //Determine the content type
+                let contentType = 'plain';
+
+                //set content type for css
+                if (fileName.indexOf('.css') > -1) {
+                    contentType = 'css';
+                }
+
+                //set content type for css
+                if (fileName.indexOf('.png') > -1) {
+                    contentType = 'png';
+                }
+
+                //set content type for jpg
+                if (fileName.indexOf('.jpg') > -1) {
+                    contentType = 'jpg';
+                }
+
+                //set content type for ico
+                if (fileName.indexOf('.ico') > -1) {
+                    contentType = 'favicon';
+                }
+                //Call back response
+                callback(_appConst.SUCCESS_CODE, fileData, contentType);
+            }).catch(err => {
+                console.log(_appConst.RED_COLOUR ,err);
+                callback(_appConst.INTERNAL_SERVER_ERROR);
+            });
+        } else {
+            callback(_appConst.NOT_FOUND.code);
+        }
+    } else {
+        callback(_appConst.METHOD_NOT_ALLOWED.code);
+    };
+};
 
 //Export module
 module.exports = handler;
