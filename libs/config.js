@@ -13,7 +13,13 @@ environment.staging = {
     httpPort : 3000,
     httpsPort : 3001,
     envName : 'staging',
-    maxChecks : 5
+    maxChecks : 5,
+    templateGlobal : {
+        'appName'  : 'UpTimeChecker',
+        'companyName' : 'Not A RealCompant.ltd',
+        'yearCreated' : '2019',
+        'baseUrl' : 'http://localhost:3000/'
+    }
 }
 
 //Production environment
@@ -21,7 +27,13 @@ environment.production = {
     httpPort : 5000,
     httpsPort : 5001,
     envName : 'production',
-    maxChecks : 5
+    maxChecks : 5,
+    templateGlobal : {
+        'appName'  : 'UpTimeChecker',
+        'companyName' : 'NotaRealCompant.ltd',
+        'yearCreated' : '2019',
+        'baseUrl' : 'http://localhost:5000/'
+    }
 }
 
 //Determine which environment id passed from console

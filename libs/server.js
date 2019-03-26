@@ -17,6 +17,7 @@ const _debug = util.debuglog('server');
 const _routes = require('./router');
 const _config = require('./config'); 
 const _helper = require('./helper');
+const _appConst = require('./appConstants');
 
 //Server module
 const server = {};
@@ -78,27 +79,38 @@ server.unifiedServer = (req, res) => {
         };
         
         //Choose handler
-        const directoryPath = trimmedPath.split('/')[0];
-        const choosenHandler = _routes.hasOwnProperty(directoryPath) ? _routes[directoryPath] : _routes.notFound;
-        choosenHandler(data, (statusCode, payload) => {
+        // const directoryPath = trimmedPath.split('/')[0]; Used for old logic
+        const choosenHandler = _routes.hasOwnProperty(trimmedPath) ? _routes[trimmedPath] : _routes.notFound;
+        choosenHandler(data, (statusCode, payload, contentType = 'json') => {
             
             //Set default http status code
             statusCode = typeof(statusCode) === 'number' ? statusCode : 200;
+            //Set default payload as empty String
+            let payloadString = ''
 
-            //Set default payload as an empty object
-            payload = typeof(payload) === 'object' ? payload : {};
+            //Response content on basis of content type = application/json
+            if (contentType === 'json') {
+                res.setHeader('Content-Type', 'application/json');
+                //Set default payload as an empty object
+                payload = typeof(payload) === 'object' ? payload : {};
+                //JSON response to string
+                payloadString = JSON.stringify(payload);
+            }
 
-            //JSON response
-            const JsonPayload = JSON.stringify(payload);
-
+            //Response content on basis of content type = application/json
+            if (contentType === 'html') {
+                res.setHeader('Content-Type', 'text/html');
+                //Set default payload as an empty string
+                payloadString = typeof(payload) === 'string' ? payload : '';
+            }
+            
             //Sending response
-            res.setHeader('Content-Type', 'application/json');
             res.writeHead(statusCode);
-            res.end(JsonPayload);
+            res.end(payloadString);
 
             //Log
-            const colourCode = [200, 201].indexOf(statusCode) > -1 ? '\x1b[32m%s\x1b[0m' : '\x1b[31m%s\x1b[0m'; 
-            _debug(colourCode,`method : ${method}, path : ${trimmedPath}, status: ${statusCode}, response: ${JsonPayload}`);
+            const colourCode = [200, 201].indexOf(statusCode) > -1 ? _appConst.GREEN_COLOR : _appConst.RED_COLOUR; 
+            _debug(colourCode,`method : ${method}, path : ${trimmedPath}, status: ${statusCode}, response: ${contentType === 'json' ? payloadString : 'html'}`);
         });
     });
 };

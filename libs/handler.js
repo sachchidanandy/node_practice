@@ -6,10 +6,12 @@
 */
 
 //Dependencies
-const APP_CONST = require('./appConstants');
+const _appConst = require('./appConstants');
 const _user = require('./user');
 const _tocken = require('./tocken');
 const _check = require('./check');
+const _helper = require('./helper');
+const _templateDataObject = require('./tempSpecificData');
 
 //Handler module to export
 const handler = {};
@@ -28,29 +30,46 @@ handler.ping = (data, callback) => {
 
 //User services handler 
 handler.user = (data, callback) => {
-    if (APP_CONST.METHOD_LIST.indexOf(data.method) > -1) {
+    if (_appConst.METHOD_LIST.indexOf(data.method) > -1) {
         _user[data.method](data, callback);
     } else {
-        callback(405, APP_CONST.INVALID_METHOD);
+        callback(405, _appConst.INVALID_METHOD);
     }
 };
 
 //Token service handler
 handler.tocken = (data, callback) => {
-    if (APP_CONST.METHOD_LIST.indexOf(data.method) > -1) {
+    if (_appConst.METHOD_LIST.indexOf(data.method) > -1) {
         _tocken[data.method](data, callback);
     } else {
-        callback(405, APP_CONST.INVALID_METHOD);
+        callback(405, _appConst.INVALID_METHOD);
     }
 }
 
 //Token service handler
 handler.check = (data, callback) => {
-    if (APP_CONST.METHOD_LIST.indexOf(data.method) > -1) {
+    if (_appConst.METHOD_LIST.indexOf(data.method) > -1) {
         _check[data.method](data, callback);
     } else {
-        callback(405, APP_CONST.INVALID_METHOD);
+        callback(405, _appConst.INVALID_METHOD);
     }
+}
+
+//Index page handler
+handler.index = (data, callback) => {
+    if (data.method === 'get') {
+        //Fetching the Index template
+        _helper.getTemplate('index', _templateDataObject.index).then(mainBodyHtml => {
+            return _helper.addUniversalTemplates(mainBodyHtml, _templateDataObject.index);
+        }).then( finalHtmlString => {
+            callback(_appConst.SUCCESS_CODE, finalHtmlString, 'html');
+        }).catch(err => {
+            console.log(_appConst.RED_COLOUR ,err);
+            callback(_appConst.INTERNAL_SERVER_ERROR, null, 'html');
+        });
+    } else {
+        callback(_appConst.METHOD_NOT_ALLOWED.code, null, 'html');
+    };
 }
 
 //Export module

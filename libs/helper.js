@@ -7,12 +7,15 @@
 
 //Dependency
 const crypto = require('crypto');
+const queryString = require('querystring');
+const https = require('https');
+const fileSystem = require('fs');
+const path = require('path');
 const _secret = require('../https/keys');
 const _appConstant = require('./appConstants');
 const _data = require('./data');
-const queryString = require('querystring');
-const https = require('https');
-
+const _templateBaseDir = path.join(__dirname, '../templates/');
+const _config = require('./config');
 
 //helper module to export
 const helper = {};
@@ -154,7 +157,7 @@ helper.createPassword = (passwordText, salt = null) => {
         salt,
         password : hashedPassword
     };
-}
+};
 
 //function to generate tocken for user
 helper.createTocken = (tockenLength = 0) => {
@@ -174,7 +177,7 @@ helper.createTocken = (tockenLength = 0) => {
         return false;
     }
     
-}
+};
 
 //Function to validate tocken
 helper.validateTocken = (tocken, callBack) => {
@@ -197,7 +200,7 @@ helper.validateTocken = (tocken, callBack) => {
             callBack('Tocken ' + _appConstant.NOT_FOUND.message);
         }
     });
-}
+};
 
 /*
     CURL REQUEST TO SEND SMS
@@ -266,7 +269,78 @@ helper.sendTwilioSms = (phone, msg, callBack) => {
     } else {
         callBack('Invalid Parameters');
     }
-}
+};
+
+//Function to read template content
+helper.getTemplate = (templateName, dataObject) => {
+    return new Promise((resolve, reject) => {
+        //Validate parameters
+        templateName = typeof(templateName) === 'string' && templateName.length > 0 ? templateName : false;
+        dataObject = typeof(dataObject) === 'object' && dataObject != null ? dataObject : {};
+        
+        if (templateName) {
+            fileSystem.readFile(`${_templateBaseDir}${templateName}.html`, 'utf8', (err, str) => {
+                if (!err && str && str.length > 0) {
+                    //Do interpolation in string
+                    const finalHtmlString = helper.interpolate(str, dataObject);
+                    resolve(finalHtmlString);
+                } else {
+                    reject(err);
+                }
+            });
+        } else {
+            reject('Please provide a file name');
+        }
+    });
+};
+
+//Function to add global header and footer
+helper.addUniversalTemplates = (mainContent, dataObject) => {
+    return new Promise((resolve, reject) => {
+        let finalHtmlString = '';
+        //Validate parameters
+        mainContent = typeof(mainContent) === 'string' && mainContent.length > 0 ? mainContent : '';
+        dataObject = typeof(dataObject) === 'object' && dataObject != null ? dataObject : {};
+        
+        //Get Universal Header
+        helper.getTemplate('_header', dataObject).then ( headerString => {
+            //Get Universal Footer
+            helper.getTemplate('_footer', dataObject).then (footerString => {
+                finalHtmlString = headerString + mainContent + footerString;
+                resolve(finalHtmlString);
+            }).catch(err => {
+                console.log(_appConstant.RED_COLOUR, err);
+                reject('Could not find universal footer');
+            });
+        }).catch(err => {
+            console.log(_appConstant.RED_COLOUR, err);
+            reject('Could not find universal header');
+        });
+    });
+};
+
+//Function to find and replace all keys with there values
+helper.interpolate = (htmlString, dataObject) => {
+    //Validate parameters
+    htmlString = typeof(htmlString) === 'string' && htmlString.length > 0 ? htmlString : '';
+    dataObject = typeof(dataObject) === 'object' && dataObject != null ? dataObject : {};
+
+    //Insert global to the dataObject
+    for (const key in _config.templateGlobal) {
+        if (_config.templateGlobal.hasOwnProperty(key)) {
+            dataObject[`global.${key}`] = _config.templateGlobal[key];
+        }
+    }
+
+    //Replace the value of each keys with there value in the html string
+    for (const key in dataObject) {
+        if (dataObject.hasOwnProperty(key) && typeof(dataObject[key]) === 'string') {
+            htmlString = htmlString.replace(`{${key}}`, dataObject[key]);
+        }
+    }
+
+    return htmlString;
+};
 
 //Export Module
 module.exports = helper;
