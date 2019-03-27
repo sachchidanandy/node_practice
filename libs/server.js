@@ -84,7 +84,7 @@ server.unifiedServer = (req, res) => {
         //Logic for public handler
         choosenHandler = trimmedPath.indexOf('public/') > -1 ? _routes.public : choosenHandler;
 
-        choosenHandler(data, (statusCode, payload, contentType) => {
+        choosenHandler(data, (statusCode, payload, contentType = 'json') => {
             
             //Set default http status code
             statusCode = typeof(statusCode) === 'number' ? statusCode : 200;
