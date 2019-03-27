@@ -10,9 +10,8 @@ const dataObject = {};
 
 //For index
 dataObject.index = {
-    'head.title' : 'Home',
-    'head.description' : 'This is meta description',
-    'body.title' : 'Hello World',
+    'head.title' : 'Uptime Monitoring - Made Simple',
+    'head.description' : 'We offer simple uptime monitoring for all HTTP/HTTPS sites and send MSG when the status of site changes',
     'body.class' : 'index'
 };
 
