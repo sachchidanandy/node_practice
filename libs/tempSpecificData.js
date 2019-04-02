@@ -15,5 +15,12 @@ dataObject.index = {
     'body.class' : 'index'
 };
 
+//For account create
+dataObject.accountCreate = {
+    'head.title' : 'Create an Account',
+    'head.description' : 'Signup is easy and only takes few seconds.',
+    'body.class' : 'accountCreate'
+};
+
 //Export module
 module.exports = dataObject;

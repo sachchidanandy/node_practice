@@ -58,18 +58,15 @@ handler.check = (data, callback) => {
 //Index page handler
 handler.index = (data, callback) => {
     if (data.method === 'get') {
-        //Fetching the Index template
-        _helper.getTemplate('index', _templateDataObject.index).then(mainBodyHtml => {
-            return _helper.addUniversalTemplates(mainBodyHtml, _templateDataObject.index);
-        }).then( finalHtmlString => {
+        _helper.renderTemplate('index').then( finalHtmlString => {
             callback(_appConst.SUCCESS_CODE, finalHtmlString, 'html');
-        }).catch(err => {
+        }).catch (err => {
             console.log(_appConst.RED_COLOUR ,err);
             callback(_appConst.INTERNAL_SERVER_ERROR, 'undefined', 'html');
         });
     } else {
         callback(_appConst.METHOD_NOT_ALLOWED.code, 'undefined', 'html');
-    };
+    }
 };
 
 //Favicon
@@ -85,7 +82,7 @@ handler.favicon = (data, callback) => {
         });
     } else {
         callback(_appConst.METHOD_NOT_ALLOWED.code);
-    };
+    }
 };
 
 //Public assets
@@ -129,7 +126,21 @@ handler.public = (data, callback) => {
         }
     } else {
         callback(_appConst.METHOD_NOT_ALLOWED.code);
-    };
+    }
+};
+
+//Create Account handler
+handler.accountCreate = (data, callback) => {
+    if (data.method === 'get') {
+        _helper.renderTemplate('accountCreate').then( finalHtmlString => {
+            callback(_appConst.SUCCESS_CODE, finalHtmlString, 'html');
+        }).catch (err => {
+            console.log(_appConst.RED_COLOUR ,err);
+            callback(_appConst.INTERNAL_SERVER_ERROR, 'undefined', 'html');
+        });
+    } else {
+        callback(_appConst.METHOD_NOT_ALLOWED.code, 'undefined', 'html');
+    }
 };
 
 //Export module

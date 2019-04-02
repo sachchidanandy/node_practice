@@ -17,6 +17,7 @@ const _data = require('./data');
 const _templateBaseDir = path.join(__dirname, '../templates/');
 const _publicDir = path.join(__dirname, '../public/');
 const _config = require('./config');
+const _templateDataObject = require('./tempSpecificData');
 
 //helper module to export
 const helper = {};
@@ -343,7 +344,7 @@ helper.interpolate = (htmlString, dataObject) => {
     return htmlString;
 };
 
-//Function to get static assets
+//Function to get static assetsx
 helper.getStaticAsset = (fileName) => {
     return new Promise((resolve, reject) => {
         //Validate filename
@@ -360,6 +361,20 @@ helper.getStaticAsset = (fileName) => {
         } else {
             reject(_appConstant.NOT_FOUND.code);
         }
+    });
+};
+
+//Function to render different templated
+helper.renderTemplate = (templateName) => {
+    return new Promise((resolve, reject) =>{
+        //Fetching the Index template
+        helper.getTemplate(templateName, _templateDataObject[templateName]).then(mainBodyHtml => {
+            return helper.addUniversalTemplates(mainBodyHtml, _templateDataObject[templateName]);
+        }).then( finalHtmlString => {
+            resolve(finalHtmlString);
+        }).catch(err => {
+            reject(err);
+        });
     });
 };
 

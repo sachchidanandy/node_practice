@@ -68,3 +68,67 @@ app.client.request = (headers, path, method, queryStringObject, payload, callbac
         console.log(err);
     });
 };
+
+//Bind the form
+app.bindForms = () => {
+    //This is not applicable to arrow
+    document.querySelector('form').addEventListener('submit', (event) => {
+        //Stop it from submitting
+        event.preventDefault();
+
+        //Get form related information
+        const form = event.currentTarget;
+        const formId = form.id;
+        const method = form.method.toUpperCase();
+        const action = form.action;
+
+        // Hide the error message (if it's currently shown due to a previous error)
+        document.querySelector(`#${formId} .formError`).style.display = 'hidden';
+
+        // Turn the inputs into a payload
+        const payload = {};
+        const allElementsObject = form.elements;
+        for (const key in allElementsObject) {
+            if (allElementsObject.hasOwnProperty(key)) {
+                let valueOfElement = allElementsObject[key].type === 'checkbox' ? allElementsObject[key].checked : allElementsObject[key].value;
+                payload[allElementsObject[key].name] = valueOfElement;                
+            }
+        }
+
+        // Call the api
+        app.client.request(undefined, action, method, undefined, payload, (statusCode,responsePayload) => {
+            // Display an error on the form if needed
+            if (statusCode >= 400 ) {
+                const errorMessage = typeof(responsePayload.error) === 'string' && responsePayload.error.length > 0 ?  responsePayload.error : 'An error has occured, please try again';
+
+                // Set the formError field with the error text
+                document.querySelector(`#${formId} .formError`).innerHTML = errorMessage;
+
+                //Unhide the error field for form
+                document.querySelector(`#${formId} .formError`).style.display = 'block';
+            } else {
+                // If successful, send to form response processor
+                app.formResponseProcessor(formId, payload, responsePayload);
+            }
+        });
+    });
+};
+
+// Form response processor
+app.formResponseProcessor = function(formId,requestPayload,responsePayload){
+    var functionToCall = false;
+    if(formId == 'accountCreate'){
+      // @TODO Do something here now that the account has been created successfully
+    }
+  };
+
+// Init (bootstrapping)
+app.init = function(){
+    // Bind all form submissions
+    app.bindForms();
+  };
+  
+  // Call the init processes after the window loads
+  window.onload = function(){
+    app.init();
+  };
