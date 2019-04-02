@@ -28,8 +28,8 @@ check.get = (data, callback) => {
         return callback(_appConstant.BAD_REQUEST.code, {error : _appConstant.BAD_REQUEST.message});
     }
 
-    //Validate tocken
-    _helper.validateTocken(data.headers.tocken, (err) => {
+    //Validate token
+    _helper.validateToken(data.headers.token, (err) => {
         if (!err) {
             //Read checks detail
             _data.read('checks', data.queryStringObject.check, (err, checkData) => {
@@ -73,8 +73,8 @@ check.post = (data, callback) => {
         return callback(_appConstant.BAD_REQUEST.code, {error : _appConstant.BAD_REQUEST.message});
     }
 
-    //Validate tocken
-    _helper.validateTocken(data.headers.tocken, (err, phone) => {
+    //Validate token
+    _helper.validateToken(data.headers.token, (err, phone) => {
         if (!err && phone) {
             //Read user detail
             _data.read('user', phone, (err, userData) => {
@@ -86,7 +86,7 @@ check.post = (data, callback) => {
                         //Check if user haven't exided max check limit
                         if (userChecks.length < _config.maxChecks) {
                             //Create new check id
-                            const checkId = _helper.createTocken(_appConstant.CHECK_ID_SIZE);
+                            const checkId = _helper.createToken(_appConstant.CHECK_ID_SIZE);
 
                             //Create check object
                             const checkObject = {
@@ -103,7 +103,7 @@ check.post = (data, callback) => {
                             //Save new check
                             _data.create('checks', checkId, checkObject, (err) => {
                                 if (!err) {
-                                    //Insert reference of tocken into user object
+                                    //Insert reference of token into user object
                                     userData.checks = userChecks;
                                     userData.checks.push(checkId);
 
@@ -164,8 +164,8 @@ check.delete = (data, callback) => {
         return callback(_appConstant.BAD_REQUEST.code, {error : _appConstant.BAD_REQUEST.message});
     }
 
-    //Validate tocken
-    _helper.validateTocken(data.headers.tocken, (err, phone) => {
+    //Validate token
+    _helper.validateToken(data.headers.token, (err, phone) => {
         if (!err && phone) {
             //Read user detail
             _data.read('user', phone, (err, userData) => {
@@ -233,8 +233,8 @@ check.put = (data, callback) => {
         return callback(_appConstant.BAD_REQUEST.code, {error : _appConstant.BAD_REQUEST.message});
     }
 
-    //Validate tocken
-    _helper.validateTocken(data.headers.tocken, (err, phone) => {
+    //Validate token
+    _helper.validateToken(data.headers.token, (err, phone) => {
         if (!err && phone) {
             //Read user detail
             _data.read('user', phone, (err, userData) => {
@@ -243,7 +243,7 @@ check.put = (data, callback) => {
                     userData = _helper.convsertJsonToObject(userData);
                     if (typeof(userData) === 'object') {
                         const userChecks = userData.hasOwnProperty('checks') && userData.checks instanceof Array ? userData.checks : [];
-                        //Check if user have given tocken
+                        //Check if user have given token
                         if (userChecks.indexOf(data.payload.check) > -1) {
                             //Read check data
                             _data.read('checks', data.payload.check, (err, checkData) => {

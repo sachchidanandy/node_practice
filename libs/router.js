@@ -20,7 +20,7 @@ const router = {
     'checks/create' : handler.checksCreate,
     'checks/edit' : handler.checksEdit,
     'api/user' : handler.user,
-    'api/tocken' : handler.tocken,
+    'api/token' : handler.token,
     'api/check' : handler.check,
     'ping' : handler.ping,
     'favicon.ico' : handler.favicon,

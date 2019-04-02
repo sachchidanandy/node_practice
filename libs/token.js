@@ -1,7 +1,7 @@
 /**
- * Tocken to handle tocken related operations.
+ * Token to handle token related operations.
  * 
- * @file tocken.js
+ * @file token.js
  * @author Sachchidanand
 */
 
@@ -10,50 +10,50 @@ const _helper = require('./helper');
 const _data = require('./data');
 const appConstant  = require('./appConstants');
 
-//Tocken module
-const tocken = {};
+//Token module
+const token = {};
 
 /**
- * @function get to fetch tockens related to user 
+ * @function get to fetch tokens related to user 
  * 
- * @argument data object(tocken)
+ * @argument data object(token)
  * @argument callback function
 */
-tocken.get = (data, callback) => {
+token.get = (data, callback) => {
     //Validate required field.
-    const validPayload = _helper.validateRequiredFields(appConstant.REQUIRED_FIELDS._GET_TOCKEN, data.queryStringObject);
+    const validPayload = _helper.validateRequiredFields(appConstant.REQUIRED_FIELDS._GET_TOKEN, data.queryStringObject);
     if (!validPayload) {
         //Callback a http status 400 and a error payload
         callback(appConstant.BAD_REQUEST.code, {error : appConstant.BAD_REQUEST.message});
     } else { 
-        //Read tocken data of the user
-        _data.read('tockens', data.queryStringObject.tocken, (err, tockenData) => {
-            //Check if tocken is present or not
-            if (!err && tockenData) {
-                tockenData = _helper.convsertJsonToObject(tockenData);
+        //Read token data of the user
+        _data.read('tokens', data.queryStringObject.token, (err, tokenData) => {
+            //Check if token is present or not
+            if (!err && tokenData) {
+                tokenData = _helper.convsertJsonToObject(tokenData);
 
-                if (tockenData) {
-                    callback(appConstant.SUCCESS_CODE, tockenData);
+                if (tokenData) {
+                    callback(appConstant.SUCCESS_CODE, tokenData);
                 } else {
                     callback(appConstant.INTERNAL_SERVER_ERROR, {error : appConstant.READ_DATA_ERROR})                    
                 }
             } else {
                 //Sending Error response
-                callback(appConstant.NOT_FOUND.code, {error : 'Tocken ' + appConstant.NOT_FOUND.message});
+                callback(appConstant.NOT_FOUND.code, {error : 'Token ' + appConstant.NOT_FOUND.message});
             }
         });
     }
 }
 
 /**
- * @function post to create tockens for user 
+ * @function post to create tokens for user 
  * 
  * @argument data object (phone, password)
  * @argument callback function
 */
-tocken.post = (data, callback) => {
+token.post = (data, callback) => {
     //Validate required field.
-    const validPayload = _helper.validateRequiredFields(appConstant.REQUIRED_FIELDS._POST_TOCKEN, data.payload);
+    const validPayload = _helper.validateRequiredFields(appConstant.REQUIRED_FIELDS._POST_TOKEN, data.payload);
     if (!validPayload) {
         //Callback a http status 400 and a error payload
         callback(appConstant.BAD_REQUEST.code, {error : appConstant.BAD_REQUEST.message});
@@ -71,29 +71,29 @@ tocken.post = (data, callback) => {
 
                     //Authenticate user
                     if (newHashedPassword === userData.password) {
-                        //Generate a tocken for user
-                        const tocken = _helper.createTocken(appConstant.TOCKEN_SIZE);
-                        if (tocken) {
+                        //Generate a token for user
+                        const token = _helper.createToken(appConstant.TOKEN_SIZE);
+                        if (token) {
 
-                            //Create tocken objectt
-                            const tockenObject = {
-                                'tocken' : tocken,
+                            //Create token objectt
+                            const tokenObject = {
+                                'token' : token,
                                 'phone' : userData.phone,
                                 'expires' : Date.now() + 1000 * 60 * 60
                             };
-                            //Create new tocken for user
-                            _data.create('tockens', tocken, tockenObject, (err) => {
+                            //Create new token for user
+                            _data.create('tokens', token, tokenObject, (err) => {
                                 if (err === false) {
                                     //Sending Success response
-                                    callback(appConstant.SUCCESS_CODE, tockenObject);
+                                    callback(appConstant.SUCCESS_CODE, tokenObject);
                                 } else {
                                     //Sending Error response
-                                    callback(appConstant.INTERNAL_SERVER_ERROR, {error : appConstant.CREATE_TOCKEN_ERROR});
+                                    callback(appConstant.INTERNAL_SERVER_ERROR, {error : appConstant.CREATE_TOKEN_ERROR});
                                 }
                             });
                         } else {
                             //Sending Error response
-                            callback(appConstant.INTERNAL_SERVER_ERROR, {error : appConstant.CREATE_TOCKEN_ERROR})
+                            callback(appConstant.INTERNAL_SERVER_ERROR, {error : appConstant.CREATE_TOKEN_ERROR})
                         }
                     } else {
                         //Sending Error response
@@ -112,33 +112,33 @@ tocken.post = (data, callback) => {
 }
 
 /**
- * @function put to update (Extend time) of tockens related to user 
+ * @function put to update (Extend time) of tokens related to user 
  * 
- * @argument data object (tocken, extend)
+ * @argument data object (token, extend)
  * @argument callback function
 */
-tocken.put = (data, callback) => {
+token.put = (data, callback) => {
     //Validate required field.
-    const validPayload = _helper.validateRequiredFields(appConstant.REQUIRED_FIELDS. _PUT_TOCKEN, data.payload);
+    const validPayload = _helper.validateRequiredFields(appConstant.REQUIRED_FIELDS. _PUT_TOKEN, data.payload);
     if (!validPayload) {
         //Callback a http status 400 and a error payload
         callback(appConstant.BAD_REQUEST.code, {error : appConstant.BAD_REQUEST.message});
     } else {
-        //Read tocken data
-        _data.read('tockens', data.payload.tocken, (err, tockenData) => {
-            if (!err && tockenData) {
+        //Read token data
+        _data.read('tokens', data.payload.token, (err, tokenData) => {
+            if (!err && tokenData) {
                 //Convert JSON string to Object
-                tockenData = _helper.convsertJsonToObject(tockenData);
-                //Check that tocken haven't expired
-                if (tockenData.expires > Date.now()) {
+                tokenData = _helper.convsertJsonToObject(tokenData);
+                //Check that token haven't expired
+                if (tokenData.expires > Date.now()) {
                     //Increase expire time by one hour
-                    tockenData.expires = Date.now() + 1000 * 60 * 60;
+                    tokenData.expires = Date.now() + 1000 * 60 * 60;
 
-                    //store new tocken data
-                    _data.update('tockens', tockenData.tocken, tockenData, (err) => {
+                    //store new token data
+                    _data.update('tokens', tokenData.token, tokenData, (err) => {
                         if (!err) {
                             //Sending success response
-                            callback(appConstant.SUCCESS_CODE, {message : appConstant.TOCKEN_EXTENDED});
+                            callback(appConstant.SUCCESS_CODE, {message : appConstant.TOKEN_EXTENDED});
                         } else {
                             //Sending Error response
                             callback(appConstant.INTERNAL_SERVER_ERROR);
@@ -146,49 +146,49 @@ tocken.put = (data, callback) => {
                     });
                 } else {
                     //Sending Error response
-                    callback(appConstant.BAD_REQUEST.code, {error : appConstant.TOCKEN_EXPIRED});
+                    callback(appConstant.BAD_REQUEST.code, {error : appConstant.TOKEN_EXPIRED});
                 }
             } else {
                 //Sending Error response
-                callback(appConstant.NOT_FOUND.code, {error : 'Tocken ' + appConstant.NOT_FOUND.message});
+                callback(appConstant.NOT_FOUND.code, {error : 'Token ' + appConstant.NOT_FOUND.message});
             }
         });
     }
 }
 
 /**
- * @function delete to delete tockens 
+ * @function delete to delete tokens 
  * 
- * @argument data object (tocken)
+ * @argument data object (token)
  * @argument callback function
 */
-tocken.delete = (data, callback) => {
+token.delete = (data, callback) => {
     //Validate required field.
-    const validPayload = _helper.validateRequiredFields(appConstant.REQUIRED_FIELDS. _DELETE_TOCKEN, data.queryStringObject);
+    const validPayload = _helper.validateRequiredFields(appConstant.REQUIRED_FIELDS. _DELETE_TOKEN, data.queryStringObject);
     if (!validPayload) {
         //Callback a http status 400 and a error payload
         callback(appConstant.BAD_REQUEST.code, {error : appConstant.BAD_REQUEST.message});
     } else {
-        //Read tocken data
-        _data.read('tockens', data.queryStringObject.tocken, (err, tockenData) => {
-            if (!err && tockenData) {
-                //Delete tocken
-                _data.delete('tockens', data.queryStringObject.tocken, (err) =>{
+        //Read token data
+        _data.read('tokens', data.queryStringObject.token, (err, tokenData) => {
+            if (!err && tokenData) {
+                //Delete token
+                _data.delete('tokens', data.queryStringObject.token, (err) =>{
                     if (!err) {
                         //Return success response
-                        callback(appConstant.SUCCESS_CODE, {message : appConstant.DELETE_TOCKEN});
+                        callback(appConstant.SUCCESS_CODE, {message : appConstant.DELETE_TOKEN});
                     } else {
                         //Return error response
-                        callback(appConstant.INTERNAL_SERVER_ERROR, {error : appConstant.DELETE_TOCKEN_ERROR});
+                        callback(appConstant.INTERNAL_SERVER_ERROR, {error : appConstant.DELETE_TOKEN_ERROR});
                     }
                 });
             } else {
                 //Sending Error response
-                callback(appConstant.NOT_FOUND.code, {error : 'Tocken ' + appConstant.NOT_FOUND.message});
+                callback(appConstant.NOT_FOUND.code, {error : 'Token ' + appConstant.NOT_FOUND.message});
             }
         });
     }
 }
 
 //Export module
-module.exports = tocken;
+module.exports = token;

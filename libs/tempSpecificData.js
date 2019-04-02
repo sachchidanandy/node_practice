@@ -22,5 +22,12 @@ dataObject.accountCreate = {
     'body.class' : 'accountCreate'
 };
 
+//For session create
+dataObject.sessionCreate = {
+    'head.title' : 'Login to your Account',
+    'head.description' : 'Please enter your phone number and password to access your account.',
+    'body.class' : 'sessionCreate'
+};
+
 //Export module
 module.exports = dataObject;

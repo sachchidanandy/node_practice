@@ -27,9 +27,9 @@ user.get = (data, callback) => {
         return callback(_appConstant.BAD_REQUEST.code, {error : _appConstant.BAD_REQUEST.message});
     }
     
-    //Validate tocken in header
-    const tocken = data.headers.hasOwnProperty('tocken') ? data.headers.tocken : '';
-    _helper.validateTocken(tocken, (err) => {
+    //Validate token in header
+    const token = data.headers.hasOwnProperty('token') ? data.headers.token : '';
+    _helper.validateToken(token, (err) => {
         if (err !== false) {
             //Callback a http status 401 and a error payload
             console.log(err);
@@ -115,9 +115,9 @@ user.put = (data, callback) => {
         //Callback a http status 400 and a error payload
         callback(_appConstant.BAD_REQUEST.code, {error : _appConstant.BAD_REQUEST.message});
     } else {
-        //Validate tocken in header
-        const tocken = data.headers.hasOwnProperty('tocken') ? data.headers.tocken : '';
-        _helper.validateTocken(tocken, (err) => {
+        //Validate token in header
+        const token = data.headers.hasOwnProperty('token') ? data.headers.token : '';
+        _helper.validateToken(token, (err) => {
             if (err !== false) {
                 //Callback a http status 401 and a error payload
                 console.log(err);
@@ -173,9 +173,9 @@ user.delete = (data, callback) => {
         return callback(_appConstant.BAD_REQUEST.code, {error : _appConstant.BAD_REQUEST.message});
     }
     
-    //Validate tocken in header
-    const tocken = data.headers.hasOwnProperty('tocken') ? data.headers.tocken : '';
-    _helper.validateTocken(tocken, (err) => {
+    //Validate token in header
+    const token = data.headers.hasOwnProperty('token') ? data.headers.token : '';
+    _helper.validateToken(token, (err) => {
         if (err !== false) {
             //Callback a http status 401 and a error payload
             console.log(err);

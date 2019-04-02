@@ -81,9 +81,9 @@ helper.validateRequiredFields = (requiredField, data) => {
                 }
                 break;
 
-            case 'tocken':
+            case 'token':
                 value = data[key].split(' ').join('');
-                if ( typeof(value) != 'string' || value.length < _appConstant.TOCKEN_SIZE) {
+                if ( typeof(value) != 'string' || value.length < _appConstant.TOKEN_SIZE) {
                     return false;
                 }
                 break;
@@ -161,45 +161,45 @@ helper.createPassword = (passwordText, salt = null) => {
     };
 };
 
-//function to generate tocken for user
-helper.createTocken = (tockenLength = 0) => {
-    tockenLength = typeof(tockenLength) === 'number' ? tockenLength : false;
+//function to generate token for user
+helper.createToken = (tokenLength = 0) => {
+    tokenLength = typeof(tokenLength) === 'number' ? tokenLength : false;
 
-    if (tockenLength) {
-        let tocken = '';
-        const tockenPool = _appConstant.TOCKEN_CHAR_POOL;
+    if (tokenLength) {
+        let token = '';
+        const tokenPool = _appConstant.TOKEN_CHAR_POOL;
 
-        //Create tocken
-        for (let counter = 0; counter < tockenLength; counter++) {
-            tocken += tockenPool.charAt(Math.floor(Math.random() * tockenPool.length));
+        //Create token
+        for (let counter = 0; counter < tokenLength; counter++) {
+            token += tokenPool.charAt(Math.floor(Math.random() * tokenPool.length));
         }
 
-        return tocken;
+        return token;
     } else {
         return false;
     }
     
 };
 
-//Function to validate tocken
-helper.validateTocken = (tocken, callBack) => {
-    _data.read('tockens', tocken, (err, data) => {
+//Function to validate token
+helper.validateToken = (token, callBack) => {
+    _data.read('tokens', token, (err, data) => {
         if (!err && data) {
             //Convert JSON data into object
             data = helper.convsertJsonToObject(data);
 
             if (data) {
-                //Check if tocken belongs to that user and haven't expired
+                //Check if token belongs to that user and haven't expired
                 if (data.expires > Date.now()) {
                     callBack(false, data.phone);
                 } else {
-                    callBack(_appConstant.TOCKEN_EXPIRED);
+                    callBack(_appConstant.TOKEN_EXPIRED);
                 }
             } else {
                 callBack(_appConstant.READ_DATA_ERROR);
             }
         } else {
-            callBack('Tocken ' + _appConstant.NOT_FOUND.message);
+            callBack('Token ' + _appConstant.NOT_FOUND.message);
         }
     });
 };
@@ -236,7 +236,7 @@ helper.sendTwilioSms = (phone, msg, callBack) => {
             'hostname' : 'api.twilio.com',
             'method' : 'POST',
             'path' : `/2010-04-01/Accounts/${_secret.twilio.accountSid}/Messages.json`,
-            'auth' : `${_secret.twilio.accountSid}:${_secret.twilio.authTocken}`,
+            'auth' : `${_secret.twilio.accountSid}:${_secret.twilio.authToken}`,
             'headers' : {
                 'Content-Type' : 'application/x-www-form-urlencoded',
                 'Content-Length' : Buffer.byteLength(stringPayload)

@@ -8,7 +8,7 @@
 //Dependencies
 const _appConst = require('./appConstants');
 const _user = require('./user');
-const _tocken = require('./tocken');
+const _token = require('./token');
 const _check = require('./check');
 const _helper = require('./helper');
 const _templateDataObject = require('./tempSpecificData');
@@ -38,9 +38,9 @@ handler.user = (data, callback) => {
 };
 
 //Token service handler
-handler.tocken = (data, callback) => {
+handler.token = (data, callback) => {
     if (_appConst.METHOD_LIST.indexOf(data.method) > -1) {
-        _tocken[data.method](data, callback);
+        _token[data.method](data, callback);
     } else {
         callback(405, _appConst.INVALID_METHOD);
     }
@@ -133,6 +133,20 @@ handler.public = (data, callback) => {
 handler.accountCreate = (data, callback) => {
     if (data.method === 'get') {
         _helper.renderTemplate('accountCreate').then( finalHtmlString => {
+            callback(_appConst.SUCCESS_CODE, finalHtmlString, 'html');
+        }).catch (err => {
+            console.log(_appConst.RED_COLOUR ,err);
+            callback(_appConst.INTERNAL_SERVER_ERROR, 'undefined', 'html');
+        });
+    } else {
+        callback(_appConst.METHOD_NOT_ALLOWED.code, 'undefined', 'html');
+    }
+};
+
+//Create session handler
+handler.sessionCreate = (data, callback) => {
+    if (data.method === 'get') {
+        _helper.renderTemplate('sessionCreate').then( finalHtmlString => {
             callback(_appConst.SUCCESS_CODE, finalHtmlString, 'html');
         }).catch (err => {
             console.log(_appConst.RED_COLOUR ,err);
