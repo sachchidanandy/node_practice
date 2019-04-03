@@ -252,6 +252,42 @@ app.tokenRenewalLoop = function(){
     },1000 * 60);
 };
 
+//Handle delete session (log our)
+app.logUserOut = function() {
+    //get token from config
+    const token = app.config.sessionToken.hasOwnProperty('token') ? app.config.sessionToken.token : false;
+    if (token && typeof(token) === 'string') {
+        //Prepare query string object
+        const queryString= {
+            'token' : token
+        };
+
+        //request to delete tocken
+        app.client.request(undefined, 'api/token', 'DELETE', queryString, undefined, (statusCode, response) => {
+            if (statusCode >= 400) {
+                console.log(response.error);
+            } else {
+                //delete session from local memory
+                app.setSessionToken(false);
+
+                //redirect to logout page
+                window.location = 'session/deleted';
+            }
+        });
+    }
+}
+
+//Binding logout button to listener
+app.bindLogoutButton = function() {
+    document.getElementById('logoutButton').addEventListener('click', (event) => {
+        // Stop it from redirecting anywhere
+        event.preventDefault();
+
+        // Log the user out
+        app.logUserOut();
+    });
+};
+
 // Init (bootstrapping)
 app.init = function(){
     // Bind all form submissions
@@ -262,6 +298,9 @@ app.init = function(){
 
     //Renew token loop
     app.tokenRenewalLoop();
+
+    //Bind logout button
+    app.bindLogoutButton();
 };
   
 // Call the init processes after the window loads

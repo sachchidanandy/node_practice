@@ -29,5 +29,12 @@ dataObject.sessionCreate = {
     'body.class' : 'sessionCreate'
 };
 
+//For session delete
+dataObject.sessionDeleted = {
+    'head.title' : 'Logged Out',
+    'head.description' : 'Ypu have been logged out from your account.',
+    'body.class' : 'sessionDeleted'
+};
+
 //Export module
 module.exports = dataObject;
