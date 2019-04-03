@@ -170,5 +170,20 @@ handler.sessionDeleted = (data, callback) => {
         callback(_appConst.METHOD_NOT_ALLOWED.code, 'undefined', 'html');
     }
 };
+
+//Edit user profile
+handler.accountEdit = (data, callback) => {
+    if (data.method === 'get') {
+        _helper.renderTemplate('accountEdit').then( finalHtmlString => {
+            callback(_appConst.SUCCESS_CODE, finalHtmlString, 'html');
+        }).catch (err => {
+            console.log(_appConst.RED_COLOUR ,err);
+            callback(_appConst.INTERNAL_SERVER_ERROR, 'undefined', 'html');
+        });
+    } else {
+        callback(_appConst.METHOD_NOT_ALLOWED.code, 'undefined', 'html');
+    }
+};
+
 //Export module
 module.exports = handler;

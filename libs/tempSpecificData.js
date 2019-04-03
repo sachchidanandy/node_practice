@@ -36,5 +36,11 @@ dataObject.sessionDeleted = {
     'body.class' : 'sessionDeleted'
 };
 
+//For Edit profile
+dataObject.accountEdit = {
+    'head.title' : 'Account Settings',
+    'body.class' : 'accountEdit'
+};
+
 //Export module
 module.exports = dataObject;
