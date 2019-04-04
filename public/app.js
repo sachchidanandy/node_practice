@@ -105,8 +105,11 @@ app.bindForms = () => {
                         }
                     }
         
+                    //Turn input into query string object
+                    const queryStringObject = method === 'DELETE' ? payload : {};
+
                     // Call the api
-                    app.client.request(undefined, action, method, undefined, payload, (statusCode,responsePayload) => {
+                    app.client.request(undefined, action, method, queryStringObject, payload, (statusCode,responsePayload) => {
                         // Display an error on the form if needed
                         if (statusCode >= 400 ) {
                             const errorMessage = typeof(responsePayload.error) === 'string' && responsePayload.error.length > 0 ?  responsePayload.error : 'An error has occured, please try again';
@@ -149,7 +152,7 @@ app.formResponseProcessor = function(formId, requestPayload, responsePayload){
                 window.querySelector(`#${formId} .formError`).style.display = 'block';
             } else {
                 app.setSessionToken(newResponse);
-                window.location = 'checks/all';
+                window.location = '/checks/all';
             }
         });
     }
@@ -157,12 +160,18 @@ app.formResponseProcessor = function(formId, requestPayload, responsePayload){
     //If login success
     if (formId === 'sessionCreate') {
         app.setSessionToken(responsePayload);
-        window.location = 'checks/all'
+        window.location = '/checks/all'
     }
 
-    // If forms saved successfully and they have success messages, show them
+    // If forms saved successfully and they have success messages show them
     if(['accountEdit1', 'accountEdit2'].indexOf(formId) > -1){
         document.querySelector(`#${formId} .formSuccess`).style.display = 'block';
+    }
+
+    // If user deletes the account
+    if (formId === 'accountEdit3') {
+        app.logUserOut(false);
+        window.location = '/account/deleted'
     }
 };
 
@@ -283,7 +292,7 @@ app.logUserOut = function() {
         app.setSessionToken(false);
 
         //redirect to logout page
-        window.location = 'session/deleted';
+        window.location = '/session/deleted';
     });
 };
 

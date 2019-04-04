@@ -32,7 +32,7 @@ dataObject.sessionCreate = {
 //For session delete
 dataObject.sessionDeleted = {
     'head.title' : 'Logged Out',
-    'head.description' : 'Ypu have been logged out from your account.',
+    'head.description' : 'You have been logged out from your account.',
     'body.class' : 'sessionDeleted'
 };
 
@@ -42,5 +42,11 @@ dataObject.accountEdit = {
     'body.class' : 'accountEdit'
 };
 
+//For delete profile
+dataObject.accountDeleted = {
+    'head.title' : 'Account Deleted',
+    'head.description' : 'Your account has been deleted.',
+    'body.class' : 'accountDeleted'
+};
 //Export module
 module.exports = dataObject;
