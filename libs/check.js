@@ -32,7 +32,7 @@ check.get = (data, callback) => {
     _helper.validateToken(data.headers.token, (err) => {
         if (!err) {
             //Read checks detail
-            _data.read('checks', data.queryStringObject.check, (err, checkData) => {
+            _data.read('checks', data.queryStringObject.checkId, (err, checkData) => {
                 if (!err && checkData) {
                     //Convert JSON string into object
                     checkData = _helper.convsertJsonToObject(checkData);
@@ -40,11 +40,8 @@ check.get = (data, callback) => {
                     //delte phone from response object
                     delete checkData.phone;
 
-                    //delete lastState from response
-                    delete checkObject.lastState;
-
                     //Return success response
-                    callback(_appConstant.SUCCESS_CODE, JSON.parse(checkData));
+                    callback(_appConstant.SUCCESS_CODE, checkData);
                 } else {
                     //Callback a http status 400 and a error payload
                     console.log(err);
@@ -112,9 +109,6 @@ check.post = (data, callback) => {
                                         if (!err) {
                                             //Delete phone from response
                                             delete checkObject.phone;
-
-                                            //delete lastState from response
-                                            delete checkObject.lastState;
                                             
                                             //Send sucess response
                                             callback(_appConstant.SUCCESS_CODE, checkObject);
@@ -175,11 +169,11 @@ check.delete = (data, callback) => {
                     if (typeof(userData) === 'object') {
                         const userChecks = userData.hasOwnProperty('checks') && userData.checks instanceof Array ? userData.checks : [];
                         //Check if user haven't exided max check limit
-                        if (userChecks.indexOf(data.queryStringObject.check) > -1) {
+                        if (userChecks.indexOf(data.queryStringObject.checkId) > -1) {
                             //delete checks
-                            _data.delete('checks', data.queryStringObject.check, (err) => {
+                            _data.delete('checks', data.queryStringObject.checkId, (err) => {
                                 if (!err) {
-                                    userData.checks = userChecks.filter( checkId => checkId !== data.queryStringObject.check);
+                                    userData.checks = userChecks.filter( checkId => checkId !== data.queryStringObject.checkId);
 
                                     //Update user details
                                     _data.update('user', phone, userData, (err) => {
@@ -267,9 +261,6 @@ check.put = (data, callback) => {
                                         if (!err) {
                                             //delete phone from response
                                             delete checkObject.phone;
-
-                                            //delete lastState from response
-                                            delete checkObject.lastState;
 
                                             //Send back response
                                             callback(_appConstant.SUCCESS_CODE, checkObject);

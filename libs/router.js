@@ -16,7 +16,7 @@ const router = {
     'account/deleted' : handler.accountDeleted,
     'session/create' : handler.sessionCreate,
     'session/deleted' : handler.sessionDeleted,
-    'checks/all' : handler.checkList,
+    'checks/all' : handler.checksList,
     'checks/create' : handler.checksCreate,
     'checks/edit' : handler.checksEdit,
     'api/user' : handler.user,

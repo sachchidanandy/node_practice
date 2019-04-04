@@ -142,7 +142,7 @@ app.bindForms = () => {
 };
 
 // Form response processor
-app.formResponseProcessor = function(formId, requestPayload, responsePayload){
+app.formResponseProcessor = (formId, requestPayload, responsePayload) => {
     var functionToCall = false;
 
     // If account creation was successful, try to immediately log the user in
@@ -192,7 +192,7 @@ app.formResponseProcessor = function(formId, requestPayload, responsePayload){
 };
 
 //Set token in the sessionToken as well as into the local storage 
-app.setSessionToken = function(token) {
+app.setSessionToken = token => {
     //Set sessionToken to config.
     app.config.sessionToken = token;
 
@@ -202,7 +202,7 @@ app.setSessionToken = function(token) {
 };
 
 // Set (or remove) the loggedIn class from the body
-app.setLoggedInClass = function(add){
+app.setLoggedInClass = add => {
     var target = document.querySelector("body");
     if (add){
       target.classList.add('loggedIn');
@@ -212,7 +212,7 @@ app.setLoggedInClass = function(add){
 };
 
 //Get token from localstorage
-app.getTokenFromLocalStorage = function() {
+app.getTokenFromLocalStorage = () => {
     //get token string
     const tokenString = localStorage.getItem('token');
     
@@ -241,7 +241,7 @@ app.getTokenFromLocalStorage = function() {
 };
 
 //Function to renew token
-app.renewToken = function(callback) {
+app.renewToken = callback => {
     //token object
     const tokenObject = app.config.sessionToken;
     if (typeof(tokenObject) === 'object' && tokenObject.hasOwnProperty('token')) {
@@ -253,14 +253,14 @@ app.renewToken = function(callback) {
 
         //call api to extend token
         app.client.request(undefined, 'api/token', 'PUT', undefined, payload, (statusCode, responseObject) => {
-            if (statusCode === 200) {
+            if (Number(statusCode) === 200) {
                 //Create queryStringObject for request
                 const queryStringObject = {
                     token : tokenObject.token
                 };
                 //Get token
                 app.client.request(undefined, 'api/token', 'GET', queryStringObject, undefined, (statusCode, responseObject) => {
-                    if (statusCode === 200) {
+                    if (Number(statusCode) === 200) {
                         app.setSessionToken(responseObject);
                         callback(false);
                     } else {
@@ -282,7 +282,7 @@ app.renewToken = function(callback) {
 }; 
 
 // Loop to renew token often
-app.tokenRenewalLoop = function() {
+app.tokenRenewalLoop = () => {
     setInterval(function(){
       app.renewToken(function(err){
         if(!err){
@@ -293,7 +293,7 @@ app.tokenRenewalLoop = function() {
 };
 
 //Handle delete session (log our)
-app.logUserOut = function() {
+app.logUserOut = () => {
     //get token from config
     const token = app.config.sessionToken.hasOwnProperty('token') ? app.config.sessionToken.token : false;
     //Prepare query string object
@@ -313,7 +313,7 @@ app.logUserOut = function() {
 };
 
 //Binding logout button to listener
-app.bindLogoutButton = function() {
+app.bindLogoutButton = () => {
     document.getElementById('logoutButton').addEventListener('click', (event) => {
         // Stop it from redirecting anywhere
         event.preventDefault();
@@ -324,7 +324,7 @@ app.bindLogoutButton = function() {
 };
 
 // Load data on the page
-app.loadDataOnPage = function() {
+app.loadDataOnPage = () => {
     // Get the current page from the body class
     var bodyClasses = document.querySelector("body").classList;
     var primaryClass = typeof(bodyClasses[0]) === 'string' ? bodyClasses[0] : false;
@@ -333,10 +333,15 @@ app.loadDataOnPage = function() {
     if(primaryClass === 'accountEdit'){
         app.loadAccountEditPage();
     }
+
+    //Load data on dashboard    
+    if(primaryClass === 'checksList'){
+        app.loadChecksListPage();
+    }
 };
 
 //Load data for edit page specially
-app.loadAccountEditPage = function() {
+app.loadAccountEditPage = () => {
     //get phone number from config
     const phone = app.config.sessionToken.hasOwnProperty('phone') ? app.config.sessionToken.phone : false;
 
@@ -347,7 +352,7 @@ app.loadAccountEditPage = function() {
         }
         //Fetch data of the user
         app.client.request(undefined, 'api/user', 'GET', queryStringObject, undefined, (statusCode, responsePayload) => {
-            if (statusCode === 200) {
+            if (Number(statusCode) === 200) {
                 //Set value in the form
                 document.querySelector("#accountEdit1 .firstNameInput").value = responsePayload.firstName;
                 document.querySelector("#accountEdit1 .lastNameInput").value = responsePayload.lastName;
@@ -370,8 +375,64 @@ app.loadAccountEditPage = function() {
     }
 };
 
+//(Dashboard Page) Load all checks and insert data into table
+app.loadChecksListPage  = () => {
+    //get user phone number 
+    const phone = app.config.sessionToken.hasOwnProperty('phone') ? app.config.sessionToken.phone : false;
+
+    //Check phone number is valid
+    if (Number(phone) && phone.length === 10) {
+        //Get user details
+        app.client.request(undefined, 'api/user', 'GET', {'phone' : phone}, undefined, (statusCode, responseObject) => {
+            if (Number(statusCode) === 200) {
+                const allChecks = responseObject.hasOwnProperty('checks') ? responseObject.checks : [];
+
+                if (allChecks.length) {
+                    const checkTable = document.getElementById('checksListTable');
+                    //Get data of each check
+                    allChecks.map(checkId => {
+                        app.client.request(undefined, 'api/check', 'GET', {checkId}, undefined, (statusCode, check) => {
+                            if (Number(statusCode) === 200) {
+                                //Create row for check (-1) is to insert row at last
+                                const tableRow = checkTable.insertRow(-1);
+                                if (typeof(check) === 'object') {
+                                    tableRow.insertCell(0).innerHTML = check.hasOwnProperty('method') ? check.method.toUpperCase() : null;
+                                    tableRow.insertCell(1).innerHTML = check.hasOwnProperty('protocol') ? `${check.protocol}://` : null;
+                                    tableRow.insertCell(2).innerHTML = check.hasOwnProperty('url') ? check.url : null;
+                                    tableRow.insertCell(3).innerHTML = check.hasOwnProperty('lastState') &&  check.lastState ? check.lastState : 'unknown';
+                                    tableRow.insertCell(4).innerHTML = `<a href = "/checks/edit?id=${check.checkId}">View / Edit / Delete</a>`;
+                                }
+                            } else {
+                                console.log(`Can't able to load detail of check Id : ${checkId}`);
+                            }
+                        });
+                    });
+
+                    if (allChecks.length < 5) {
+                        //Show message to create new check
+                        document.getElementById("createCheckCTA").style.display = 'block';
+                    }
+                } else {
+                    //Show message if not have any check
+                    document.getElementById('noChecksMessage').style.display = 'table-row';
+
+                    //Show message to create new check
+                    document.getElementById("createCheckCTA").style.display = 'block';
+                }
+                //show message if there is no check present
+            } else {
+                // If the request comes back as something other than 200, log the user our (on the assumption that the api is temporarily down or the users token is bad)
+                app.logUserOut()
+            }
+        });
+    } else {
+        //Invalid phone number
+        app.logUserOut();
+    }
+};
+
 // Init (bootstrapping)
-app.init = function(){
+app.init = () => {
     // Bind all form submissions
     app.bindForms();
 
@@ -384,11 +445,11 @@ app.init = function(){
     //Bind logout button
     app.bindLogoutButton();
 
-    // Load data on page
+    // Load data on Edit page
     app.loadDataOnPage();
 };
   
 // Call the init processes after the window loads
-window.onload = function(){
+window.onload = () => {
     app.init();
 };

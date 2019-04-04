@@ -53,7 +53,13 @@ dataObject.accountDeleted = {
 dataObject.checksCreate = {
     'head.title' : 'Create New Checks',
     'body.class' : 'checksCreate'
-}
+};
+
+//For create new checks
+dataObject.checksList = {
+    'head.title' : 'Dashboard',
+    'body.class' : 'checksList'
+};
 
 //Export module
 module.exports = dataObject;

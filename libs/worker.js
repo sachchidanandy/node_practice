@@ -137,7 +137,7 @@ worker.processCheckOutCome = (checkData, checkOutCome) =>{
     //Check for error
     if (!checkOutCome.error && checkOutCome.responseCode) {
         //Decide if the state of url is up or down
-        const state =  checkData.successCode.indexOf(checkOutCome.responseCode) > -1 ? 'up' : 'down';
+        const state =  checkData.successCode.indexOf(`${checkOutCome.responseCode}`) > -1 ? 'up' : 'down';
 
         //Decide if alert is required
         const alertUser = checkData.lastState !== state ? true : false;
