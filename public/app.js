@@ -96,11 +96,22 @@ app.bindForms = () => {
                     const allElementsObject = form.elements;
                     for (const key in allElementsObject) {
                         if (allElementsObject.hasOwnProperty(key)) {
-                            let valueOfElement = allElementsObject[key].type === 'checkbox' ? allElementsObject[key].checked : allElementsObject[key].value;
-                            if (allElementsObject[key].name === '_method') {
-                                method = valueOfElement.toUpperCase();
+                            //Check for multi value selector
+                            if (allElementsObject[key].className === 'multiselect intval') {
+                                if (payload.hasOwnProperty('successCode')) {
+                                    allElementsObject[key].checked ? payload['successCode'].push(allElementsObject[key].value) : null;
+                                } else {
+                                    payload['successCode'] = [];
+                                    allElementsObject[key].checked ? payload['successCode'].push(allElementsObject[key].value) : null;
+                                }
                             } else {
-                                payload[allElementsObject[key].name] = valueOfElement;                
+                                let valueOfElement = allElementsObject[key].type === 'checkbox' ? allElementsObject[key].checked : allElementsObject[key].type === 'select' ? allElementsObject[key].options[allElementsObject[key].selectedIndex].value : allElementsObject[key].value;
+                                if (allElementsObject[key].name === '_method') {
+                                    method = valueOfElement.toUpperCase();
+                                } else {
+                                    let elementName = allElementsObject[key].name === 'httpmethod' ? 'method' : allElementsObject[key].name;
+                                    payload[elementName] = valueOfElement;   
+                                }
                             }
                         }
                     }
@@ -172,6 +183,11 @@ app.formResponseProcessor = function(formId, requestPayload, responsePayload){
     if (formId === 'accountEdit3') {
         app.logUserOut(false);
         window.location = '/account/deleted'
+    }
+
+    // If new check added success
+    if (formId === 'checksCreate') {
+        window.location = '/checks/all'
     }
 };
 

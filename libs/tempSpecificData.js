@@ -48,5 +48,12 @@ dataObject.accountDeleted = {
     'head.description' : 'Your account has been deleted.',
     'body.class' : 'accountDeleted'
 };
+
+//For create new checks
+dataObject.checksCreate = {
+    'head.title' : 'Create New Checks',
+    'body.class' : 'checksCreate'
+}
+
 //Export module
 module.exports = dataObject;
