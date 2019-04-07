@@ -9,6 +9,8 @@
 const readLine = require('readline');
 const util = require('util');
 const debug = util.debuglog('cli');
+const os = require('os');
+const v8 = require('v8');
 const events = require('events');
 class e extends events{};
 const _events = new e();
@@ -126,7 +128,43 @@ cli.responders.exit = () => {
 
 // Stats
 cli.responders.stats = () => {
-	console.log("You asked for stats");
+	// Compile an object of stats
+	const stats = {
+		'Load Average' : os.loadavg().join(' '),
+		'CPU Count' : os.cpus().length,
+		'Free Memory' : (os.freemem()/8) + ' Bytes',
+		'Current Malloced Memory' : v8.getHeapStatistics().malloced_memory,
+		'Peak Malloced Memory' : v8.getHeapStatistics().peak_malloced_memory,
+		'Allocated Heap Used (%)' : Math.round((v8.getHeapStatistics().used_heap_size / v8.getHeapStatistics().total_heap_size) * 100),
+		'Available Heap Allocated (%)' : Math.round((v8.getHeapStatistics().total_heap_size / v8.getHeapStatistics().heap_size_limit) * 100),
+		'Uptime' : os.uptime()+' Seconds'
+	};
+
+	//Show the header of the manual
+	cli.horizontalLine();
+	cli.centered('SYSTEM STATISTICS');
+	cli.horizontalLine();
+	cli.verticalSpace(2);
+
+	//Show each command followed by explainantin in white and yellow colour respectively
+	for (const key in stats) {
+		if (stats.hasOwnProperty(key)) {
+			const value = stats[key];
+			const padding = 40 - key.length;
+			let line = '';
+
+			//Adding padding to the line
+			for (let index = 0; index < padding; index++, line+= ' ');
+			
+			//Adding value to the line
+			line+= value;
+			console.log(_appConst.YELLOW_COLOR, key, line);
+
+			cli.verticalSpace(1);
+		}
+	}
+	//Add verical line at last
+	cli.horizontalLine();
 };
 
 // List Users
