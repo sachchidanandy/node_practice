@@ -16,6 +16,7 @@ class e extends events{};
 const _events = new e();
 const _appConst = require('./appConstants');
 const _command = require('./cliCommands');
+const _data = require('./data');
 
 //Cli module
 const cli = {};
@@ -169,7 +170,21 @@ cli.responders.stats = () => {
 
 // List Users
 cli.responders.listUsers = () => {
-	console.log("You asked to list users");
+	_data.list('user').then( usersList => {
+		cli.centered('USERS LIST');
+		cli.verticalSpace(1);
+		usersList.map( user => {
+			_data.read('user', user, (err, userData) => {
+				userData = JSON.parse(userData);
+				if (!err && typeof(userData) === 'object') {
+					let line = `Name : ${userData.firstName} ${userData.lastName} phone : ${userData.phone} checks : ${userData.checks.length}`;
+					console.log(line);
+				}
+			});
+		});
+	}).catch(error => {
+		console.log(_appConst.RED_COLOUR, error);
+	});
 };
 
 // More user info
