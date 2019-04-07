@@ -8,6 +8,8 @@
 //Dependencies
 const _server = require('./libs/server');
 const _worker = require('./libs/worker');
+const _cli = require('./libs/cli');
+const _appConst = require('./libs/appConstants');
 
 //Declare the app
 const app = {};
@@ -15,10 +17,15 @@ const app = {};
 //Init function
 app.init = () => {
     //Start server
-    _server.init();
-
-    //Start workers
-    _worker.init()
+    _server.init().then( () => {
+        //Start workers
+        return _worker.init(); 
+    }).then( () => {
+        //Start cli
+        _cli.init();
+    }).catch( error => {
+        console.log(_appConst.RED_COLOUR, error);
+    });
 }
 
 //Execute

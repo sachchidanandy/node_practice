@@ -233,20 +233,29 @@ worker.rotateLogs = () => {
 
 //Init function to exec ute workers
 worker.init = () => {
-    //Console log in yellow
-    console.log('\x1b[33m%s\x1b[0m', 'Background Worker Started');
-    
-    //Execute all the checks immediately
-    worker.gatherAllChecks();
+    return new Promise( (resolve, reject) => {
+        try {
+            //Console log in yellow
+            console.log('\x1b[33m%s\x1b[0m', 'Background Worker Started');
+            
+            //Execute all the checks immediately
+            worker.gatherAllChecks();
 
-    //Call loop to check status of checks
-    worker.loop();
+            //Call loop to check status of checks
+            worker.loop();
 
-    //Compress all the logs immediately
-    worker.rotateLogs();
+            //Compress all the logs immediately
+            worker.rotateLogs();
 
-    //Calling loop to rotate log
-    worker.logRotationLoop();
+            //Calling loop to rotate log
+            worker.logRotationLoop();
+
+            //resolve
+            resolve();
+        } catch (error) {
+            reject(_appConstant.WORKER_START_ERROR);
+        }
+    });
 };
 
 //Export worker module

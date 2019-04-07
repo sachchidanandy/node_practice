@@ -36,6 +36,10 @@ const appConstants = {
     ERROR_FILE_APPEND_CLOSE : 'Error in closing that was being appended',
     RED_COLOUR : '\x1b[31m%s\x1b[0m',
     GREEN_COLOR : '\x1b[32m%s\x1b[0m',
+    DARK_BLUE_COLOR : '\x1b[34m%s\x1b[0m',
+    SERVER_START_ERROR : "Error Occours While Starting Server",
+    WORKER_START_ERROR : "Error Occours While Starting Server",
+    CLI_START_ERROR : "Error Occours While Starting Server",
     REQUIRED_FIELDS : {
         _GET_USER : ['phone'],
         _POST_USER : ['firstName', 'lastName', 'phone', 'password', 'TNC'],

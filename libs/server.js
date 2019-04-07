@@ -151,17 +151,25 @@ server.unifiedServer = (req, res) => {
 
 //function to init server
 server.init = () => {
-    //Starting HTTP Server
-    server.httpServer.listen(_config.httpPort,() => {
-        console.log('\x1b[36m%s\x1b[0m',`For HTTP :\n  Server is listening at port ${_config.httpPort} in ${_config.envName} mode`);
-    });
+    return new Promise( (resolve, reject) => {
+        try {
+            //Starting HTTP Server
+            server.httpServer.listen(_config.httpPort,() => {
+                console.log('\x1b[36m%s\x1b[0m',`For HTTP :\n  Server is listening at port ${_config.httpPort} in ${_config.envName} mode`);
+            });
 
-    //Starting HTTPS Server
-    server.httpsServer.listen(_config.httpsPort,() => {
-        console.log('\x1b[35m%s\x1b[0m',`For HTTPS :\n  Server is listening at port ${_config.httpsPort} in ${_config.envName} mode`);
+            //Starting HTTPS Server
+            server.httpsServer.listen(_config.httpsPort,() => {
+                console.log('\x1b[35m%s\x1b[0m',`For HTTPS :\n  Server is listening at port ${_config.httpsPort} in ${_config.envName} mode`);
+            });
+
+            //resolve
+            resolve();
+        } catch (error) {
+            reject(_appConst.SERVER_START_ERROR);
+        }
     });
 };
-
 
 //Export server module
 module.exports = server;
