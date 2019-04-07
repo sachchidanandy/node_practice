@@ -213,10 +213,24 @@ handler.checksCreate = (data, callback) => {
     }
 };
 
-//Create new check
+//Dashboard
 handler.checksList = (data, callback) => {
     if (data.method === 'get') {
         _helper.renderTemplate('checksList').then( finalHtmlString => {
+            callback(_appConst.SUCCESS_CODE, finalHtmlString, 'html');
+        }).catch (err => {
+            console.log(_appConst.RED_COLOUR ,err);
+            callback(_appConst.INTERNAL_SERVER_ERROR, 'undefined', 'html');
+        });
+    } else {
+        callback(_appConst.METHOD_NOT_ALLOWED.code, 'undefined', 'html');
+    }
+};
+
+//Edit check
+handler.checksEdit = (data, callback) => {
+    if (data.method === 'get') {
+        _helper.renderTemplate('checksEdit').then( finalHtmlString => {
             callback(_appConst.SUCCESS_CODE, finalHtmlString, 'html');
         }).catch (err => {
             console.log(_appConst.RED_COLOUR ,err);

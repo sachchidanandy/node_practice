@@ -97,7 +97,7 @@ app.bindForms = () => {
                     for (const key in allElementsObject) {
                         if (allElementsObject.hasOwnProperty(key)) {
                             //Check for multi value selector
-                            if (allElementsObject[key].className === 'multiselect intval') {
+                            if (allElementsObject[key].className.indexOf('multiselect') > -1) {
                                 if (payload.hasOwnProperty('successCode')) {
                                     allElementsObject[key].checked ? payload['successCode'].push(allElementsObject[key].value) : null;
                                 } else {
@@ -188,6 +188,11 @@ app.formResponseProcessor = (formId, requestPayload, responsePayload) => {
     // If new check added success
     if (formId === 'checksCreate') {
         window.location = '/checks/all'
+    }
+
+    // If forms saved successfully and they have success messages show them
+    if(['checksEdit1', 'checksEdit2'].indexOf(formId) > -1){
+        document.querySelector(`#${formId} .formSuccess`).style.display = 'block';
     }
 };
 
@@ -338,6 +343,11 @@ app.loadDataOnPage = () => {
     if(primaryClass === 'checksList'){
         app.loadChecksListPage();
     }
+
+    //Load data on edit check page    
+    if(primaryClass === 'checksEdit'){
+        app.loadchecksEditPage();
+    }
 };
 
 //Load data for edit page specially
@@ -400,7 +410,7 @@ app.loadChecksListPage  = () => {
                                     tableRow.insertCell(1).innerHTML = check.hasOwnProperty('protocol') ? `${check.protocol}://` : null;
                                     tableRow.insertCell(2).innerHTML = check.hasOwnProperty('url') ? check.url : null;
                                     tableRow.insertCell(3).innerHTML = check.hasOwnProperty('lastState') &&  check.lastState ? check.lastState : 'unknown';
-                                    tableRow.insertCell(4).innerHTML = `<a href = "/checks/edit?id=${check.checkId}">View / Edit / Delete</a>`;
+                                    tableRow.insertCell(4).innerHTML = `<a href = "/checks/edit?checkId=${check.checkId}">View / Edit / Delete</a>`;
                                 }
                             } else {
                                 console.log(`Can't able to load detail of check Id : ${checkId}`);
@@ -427,6 +437,69 @@ app.loadChecksListPage  = () => {
         });
     } else {
         //Invalid phone number
+        app.logUserOut();
+    }
+};
+
+//Load data for Edit check page
+app.loadchecksEditPage = () =>{
+    //get user phone number
+    const phone = app.config.sessionToken.hasOwnProperty('phone') ? app.config.sessionToken.phone : false;
+    //validate phone number
+    if (Number(phone) && phone.length === 10) {
+        const urlParams = new URLSearchParams(window.location.search);
+        const requestedCheckId = urlParams.has('checkId') ? urlParams.get('checkId') : false;
+
+        if (requestedCheckId) {
+            //Fetch user details
+            app.client.request(undefined, 'api/user', 'GET', {phone}, undefined, (statusCode, userDetails) => {
+                if (200 === Number(statusCode)) {
+                    //Validate check id is it belongs to the loged in user
+                    if (userDetails.checks.indexOf(requestedCheckId) > -1) {
+                        //Fetch check data
+                        app.client.request(undefined, 'api/check', 'GET', {'checkId' : requestedCheckId}, undefined, (statusCode, checkObject) =>{
+                            if (200 === Number(statusCode) && typeof(checkObject) === 'object') {
+                                //Populate form with details
+                                document.querySelector('#checksEdit1 .displayIdInput').value = checkObject.hasOwnProperty('checkId') ? checkObject.checkId : null;
+                                document.querySelector('#checksEdit1 .displayStateInput').value = checkObject.hasOwnProperty('lastState') ? checkObject.lastState : null;
+                                document.querySelector('#checksEdit1 .protocolInput').value = checkObject.hasOwnProperty('protocol') ? checkObject.protocol : null;
+                                document.querySelector('#checksEdit1 .urlInput').value = checkObject.hasOwnProperty('url') ? checkObject.url : null;
+                                document.querySelector('#checksEdit1 .methodInput').value = checkObject.hasOwnProperty('method') ? checkObject.method : null;
+                                document.querySelector('#checksEdit1 .timeoutInput').value = checkObject.hasOwnProperty('timeoutSeconds') ? checkObject.timeoutSeconds : null;
+
+                                //Get all the  checkbox for success codes
+                                const allSuccessCodeCheckBox = document.querySelectorAll('#checksEdit1 .successCodesInput');
+
+                                for (const key in allSuccessCodeCheckBox) {
+                                    const checkBox = allSuccessCodeCheckBox[key];
+                                    checkBox.checked = checkObject.successCode.indexOf(checkBox.value) > -1;
+                                }
+                                
+                                // Put the hidden id field into both forms
+                                const hiddenIdInputs = document.querySelectorAll("input.hiddenIdInput");
+                                for(const key in hiddenIdInputs){
+                                    hiddenIdInputs[key].value = checkObject.checkId;
+                                }
+                                
+                            } else {
+                                console.error('Can\'t able to get check details');
+                                window.location = '/checks/all';
+                            }
+                        });
+                    } else {
+                        console.error('Check Id not belongs to user');
+                        window.location = '/checks/all';
+                    }
+                } else {
+                    // If the request comes back as something other than 200, log the user our (on the assumption that the api is temporarily down or the users token is bad)
+                    app.logUserOut()
+                }
+            });
+        } else {
+            console.error('Can\'t find check id in url');
+            window.location = '/checks/all';
+        }
+    } else {
         app.logUserOut();
     }
 };

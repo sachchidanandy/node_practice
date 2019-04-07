@@ -157,7 +157,7 @@ check.delete = (data, callback) => {
         //Callback a http status 400 and a error payload
         return callback(_appConstant.BAD_REQUEST.code, {error : _appConstant.BAD_REQUEST.message});
     }
-
+    console.log(data.queryStringObject);
     //Validate token
     _helper.validateToken(data.headers.token, (err, phone) => {
         if (!err && phone) {
@@ -238,9 +238,9 @@ check.put = (data, callback) => {
                     if (typeof(userData) === 'object') {
                         const userChecks = userData.hasOwnProperty('checks') && userData.checks instanceof Array ? userData.checks : [];
                         //Check if user have given token
-                        if (userChecks.indexOf(data.payload.check) > -1) {
+                        if (userChecks.indexOf(data.payload.checkId) > -1) {
                             //Read check data
-                            _data.read('checks', data.payload.check, (err, checkData) => {
+                            _data.read('checks', data.payload.checkId, (err, checkData) => {
                                 if (!err && checkData) {
                                     //Convert JSON to Object
                                     checkData = _helper.convsertJsonToObject(checkData);
@@ -257,7 +257,7 @@ check.put = (data, callback) => {
                                     const checkObject = Object.assign({}, checkData, newCheckObject);
 
                                     //update check
-                                    _data.update('checks', data.payload.check, checkObject, (err) => {
+                                    _data.update('checks', data.payload.checkId, checkObject, (err) => {
                                         if (!err) {
                                             //delete phone from response
                                             delete checkObject.phone;

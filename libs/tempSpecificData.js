@@ -55,10 +55,16 @@ dataObject.checksCreate = {
     'body.class' : 'checksCreate'
 };
 
-//For create new checks
+//For dashboard
 dataObject.checksList = {
     'head.title' : 'Dashboard',
     'body.class' : 'checksList'
+};
+
+//For Edit check
+dataObject.checksEdit ={
+    'head.title' : 'Check Details',
+    'body.class' : 'checksEdit'
 };
 
 //Export module
