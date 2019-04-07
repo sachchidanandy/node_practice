@@ -18,6 +18,47 @@ const _commandList = require('./cliCommands');
 //Cli module
 const cli = {};
 
+//Input event handlers
+_events.on('man', (eventString) => {
+    console.log(`You asked for ${eventString}`);
+});
+
+_events.on('help', (eventString) => {
+    console.log(`You asked for ${eventString}`);
+});
+
+_events.on('exit', (eventString) => {
+    console.log(`You asked for ${eventString}`);
+});
+
+_events.on('stats', (eventString) => {
+    console.log(`You asked for ${eventString}`);
+});
+
+_events.on('list users', (eventString) => {
+    console.log(`You asked for ${eventString}`);
+});
+
+_events.on('more user info', (eventString) => {
+    console.log(`You asked for ${eventString}`);
+});
+
+_events.on('list checks', (eventString) => {
+    console.log(`You asked for ${eventString}`);
+});
+
+_events.on('more check info', (eventString) => {
+    console.log(`You asked for ${eventString}`);
+});
+
+_events.on('list logs', (eventString) => {
+    console.log(`You asked for ${eventString}`);
+});
+
+_events.on('more log info', (eventString) => {
+    console.log(`You asked for ${eventString}`);
+});
+
 //Input processors to process command and emit an event
 cli.processInput = inputCommand => {
     inputCommand = typeof(inputCommand) === 'string' && inputCommand.trim().length > 0 ? inputCommand.trim().toLowerCase() : false;
