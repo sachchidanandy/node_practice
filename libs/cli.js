@@ -189,7 +189,22 @@ cli.responders.listUsers = () => {
 
 // More user info
 cli.responders.moreUserInfo = (str) => {
-	console.log("You asked for more user info",str);
+	//Get User id from string
+	const phone = str.substr((str.indexOf('--')+2)).trim();
+	//Validate phone number
+	if (Number(phone) && phone.length === 10) {
+		//Read user data.
+		_data.read('user', phone, (err, userData) => {
+			//Convert JSON to object
+			userData = JSON.parse(userData);
+			if (!err && typeof(userData) === 'object') {
+				const line = `Name : ${userData.firstName} ${userData.lastName} phone : ${userData.phone} checks : ${userData.checks} TNC : ${userData.TNC}`;
+				cli.verticalSpace(1);
+				console.log(line);
+				cli.verticalSpace(1);
+			}
+		});
+	}
 };
 
 // List Checks
