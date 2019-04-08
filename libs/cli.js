@@ -18,6 +18,7 @@ const _appConst = require('./appConstants');
 const _command = require('./cliCommands');
 const _data = require('./data');
 const _logs = require('./log');
+const _helper = require('./helper');
 
 //Cli module
 const cli = {};
@@ -176,7 +177,7 @@ cli.responders.listUsers = () => {
 		cli.verticalSpace(1);
 		usersList.map( user => {
 			_data.read('user', user, (err, userData) => {
-				userData = JSON.parse(userData);
+				userData = _helper.convsertJsonToObject(userData);
 				if (!err && typeof(userData) === 'object') {
 					let line = `Name : ${userData.firstName} ${userData.lastName} phone : ${userData.phone} checks : ${userData.checks.length}`;
 					console.log(line);
@@ -197,7 +198,7 @@ cli.responders.moreUserInfo = (str) => {
 		//Read user data.
 		_data.read('user', phone, (err, userData) => {
 			//Convert JSON to object
-			userData = JSON.parse(userData);
+			userData = _helper.convsertJsonToObject(userData);
 			if (!err && typeof(userData) === 'object') {
 				const line = `Name : ${userData.firstName} ${userData.lastName} phone : ${userData.phone} checks : ${userData.checks} TNC : ${userData.TNC}`;
 				cli.verticalSpace(1);
@@ -223,7 +224,7 @@ cli.responders.listChecks = (str) => {
 				checkList.map(checkId => {
 					_data.read('checks', checkId, (err, checkData) => {
 						if (!err && checkData) {
-							checkData = JSON.parse(checkData);
+							checkData = _helper.convsertJsonToObject(checkData);
 							checkData.lastState === flag ? (cli.verticalSpace(1),console.log(`Check Id : ${checkData.checkId} Phone : ${checkData.phone} Status : ${checkData.lastState}`),cli.verticalSpace(1)) : null;
 						}
 					});
@@ -232,7 +233,7 @@ cli.responders.listChecks = (str) => {
 				checkList.map(checkId => {
 					_data.read('checks', checkId, (err, checkData) => {
 						if (!err && checkData) {
-							checkData = JSON.parse(checkData);
+							checkData = _helper.convsertJsonToObject(checkData);
 							cli.verticalSpace(1);
 							console.log(`Check Id : ${checkData.checkId} Phone : ${checkData.phone} Status : ${checkData.lastState}`);
 							cli.verticalSpace(1);
@@ -255,7 +256,7 @@ cli.responders.moreCheckInfo = (str) => {
 		//Read check data
 		_data.read('checks', checkId, (err, checkData) => {
 			if (!err && checkData) {
-				checkData = JSON.parse(checkData);
+				checkData = _helper.convsertJsonToObject(checkData);
 
 				//Print check info
 				cli.verticalSpace(1);
@@ -283,7 +284,23 @@ cli.responders.listLogs = () => {
 
 // More logs info
 cli.responders.moreLogInfo = (str) => {
-	console.log("You asked for more log info",str);
+	//Get file name
+	const logFileName = str.substr((str.indexOf('--')+2)).trim();
+
+	//Validate filename
+	if(typeof(logFileName) === 'string' && logFileName.length > 0) {
+		//Read file date
+		_logs.decompress(logFileName, (err, JsonString) => {
+			if (!err && JsonString.length) {
+				//Split the JSON string into different lines
+				const JsonArray = JsonString.split('\n');
+				JsonArray.map( jsonStr => {
+					cli.verticalSpace(1);
+					console.dir(_helper.convsertJsonToObject(jsonStr), {colors : true});
+				});
+			}
+		});
+	}
 };
 
 //Input processors to process command and emit an event
