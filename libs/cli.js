@@ -202,6 +202,8 @@ cli.responders.moreUserInfo = (str) => {
 				cli.verticalSpace(1);
 				console.log(line);
 				cli.verticalSpace(1);
+			} else {
+				console.log(_appConst.RED_COLOUR, 'Unable to find user ID');
 			}
 		});
 	}
@@ -245,7 +247,23 @@ cli.responders.listChecks = (str) => {
 
 // More check info
 cli.responders.moreCheckInfo = (str) => {
-	console.log("You asked for more check info",str);
+	const checkId = str.substr((str.indexOf('--')+2)).trim();
+
+	//Validate checkId
+	if (typeof(checkId) === 'string' && checkId.length > 0) {
+		//Read check data
+		_data.read('checks', checkId, (err, checkData) => {
+			if (!err && checkData) {
+				checkData = JSON.parse(checkData);
+
+				//Print check info
+				cli.verticalSpace(1);
+				console.dir(checkData, {colors : true});
+			} else {
+				console.log(_appConst.RED_COLOUR, 'Unable to find check ID');
+			}
+		});
+	}
 };
 
 // List Logs
@@ -260,12 +278,12 @@ cli.responders.moreLogInfo = (str) => {
 
 //Input processors to process command and emit an event
 cli.processInput = inputCommand => {
-    inputCommand = typeof(inputCommand) === 'string' && inputCommand.trim().length > 0 ? inputCommand.trim().toLowerCase() : false;
+    inputCommand = typeof(inputCommand) === 'string' && inputCommand.trim().length > 0 ? inputCommand.trim() : false;
     
     //Validate the input
     if (inputCommand) {
         let matchFound = _command.list.some( string => {
-            if (inputCommand.indexOf(string) > -1) {
+            if (inputCommand.toLowerCase().indexOf(string) > -1) {
                 //Emit an event
                 _events.emit(string, inputCommand);
                 return true;
@@ -281,7 +299,7 @@ cli.processInput = inputCommand => {
 //Init cli
 cli.init = () => {
     //Sent start message to the console, in dark blue
-    console.log(_appConst.DARK_BLUE_COLOR, 'The Cli is running');
+    console.log(_appConst.DARK_BLUE_COLOR, 'The CLI is running...');
 
     //Start the interface
     const _interface =  readLine.createInterface({
