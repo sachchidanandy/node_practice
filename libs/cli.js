@@ -17,6 +17,7 @@ const _events = new e();
 const _appConst = require('./appConstants');
 const _command = require('./cliCommands');
 const _data = require('./data');
+const _logs = require('./log');
 
 //Cli module
 const cli = {};
@@ -268,7 +269,16 @@ cli.responders.moreCheckInfo = (str) => {
 
 // List Logs
 cli.responders.listLogs = () => {
-	console.log("You asked to list logs");
+	//Read list of all compressed logs
+	_logs.list(true, (err, logList) => {
+		if (!err && logList.length > 0) {
+			logList.map(logName => {
+				if (logName.indexOf('-') > -1) {
+					console.log(logName);
+				}
+			});
+		}
+	});
 };
 
 // More logs info
