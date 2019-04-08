@@ -208,8 +208,39 @@ cli.responders.moreUserInfo = (str) => {
 };
 
 // List Checks
-cli.responders.listChecks = () => {
-	console.log("You asked to list checks");
+cli.responders.listChecks = (str) => {
+	//Get flsg from string
+	const flag = str.substr((str.indexOf('--')+2)).trim();
+	//Get all checks
+	_data.list('checks').then( checkList => {
+		//If checks present
+		if (checkList.length > 0) {
+			//Check if flag is given
+			if (typeof(flag) === 'string' && ['down', 'up'].indexOf(flag) > -1) {
+				checkList.map(checkId => {
+					_data.read('checks', checkId, (err, checkData) => {
+						if (!err && checkData) {
+							checkData = JSON.parse(checkData);
+							checkData.lastState === flag ? (cli.verticalSpace(1),console.log(`Check Id : ${checkData.checkId} Phone : ${checkData.phone} Status : ${checkData.lastState}`),cli.verticalSpace(1)) : null;
+						}
+					});
+				});
+			} else {
+				checkList.map(checkId => {
+					_data.read('checks', checkId, (err, checkData) => {
+						if (!err && checkData) {
+							checkData = JSON.parse(checkData);
+							cli.verticalSpace(1);
+							console.log(`Check Id : ${checkData.checkId} Phone : ${checkData.phone} Status : ${checkData.lastState}`);
+							cli.verticalSpace(1);
+						}
+					});
+				});
+			}
+		}
+	}).catch( error => {
+		console.log(_appConst.RED_COLOUR, error);
+	});
 };
 
 // More check info
