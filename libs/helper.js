@@ -378,5 +378,9 @@ helper.renderTemplate = (templateName) => {
     });
 };
 
+//Function just to run test
+helper.getANumber = () => {
+    return 1;
+};
 //Export Module
 module.exports = helper;
