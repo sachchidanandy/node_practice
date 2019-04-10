@@ -6,45 +6,18 @@
 */
 
 //Dependecy
-const assert = require('assert');
-const _helper = require('./../libs/helper');
 const _appConst = require('./../libs/appConstants');
 
 //Module constain test
 const _app = {};
 
 //Container for the test
-_app.test = {
-    'unit' : {}
-};
+_app.test = {};
 
-//Assert that the given function should return a number
-_app.test.unit['hepler.getANumber should return a number'] = async () => {
-    const returnValue = _helper.getANumber();
-    //write assert
-    assert.equal(typeof(returnValue),'number');
+//import unit test
+_app.test.unit = require('./unit');
 
-    return true;
-};
-
-//Assert that the given function should return a 1
-_app.test.unit['hepler.getANumber should return 1'] = async () => {
-    const returnValue = _helper.getANumber();
-    //write assert
-    assert.equal(returnValue, 1);
-
-    return true;
-};
-
-//Assert that the given function should return a 2
-_app.test.unit['hepler.getANumber should return 2'] = async () => {
-    const returnValue = _helper.getANumber();
-    //write assert
-    assert.equal(returnValue, 2);
-
-    return true;
-};
-
+//Count total number of test to execute
 _app.countTotalTest = () => {
     let totalTest = 0
     for (const testType in _app.test) {

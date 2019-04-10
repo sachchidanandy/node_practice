@@ -68,7 +68,7 @@ log.list = (includeCompressedFiles, callBack) => {
                 }
             });
             //Callback false error and list of files
-            callBack(err, listOfFile);
+            callBack(false, listOfFile);
         } else {
             //Callback error and empty array
             callBack(err, []);
