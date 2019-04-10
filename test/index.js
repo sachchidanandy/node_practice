@@ -8,6 +8,9 @@
 //Dependecy
 const _appConst = require('./../libs/appConstants');
 
+//Seting up env
+process.env.NODE_ENV = 'testing';
+
 //Module constain test
 const _app = {};
 
@@ -16,6 +19,9 @@ _app.test = {};
 
 //import unit test
 _app.test.unit = require('./unit');
+
+//import api test
+_app.test.api = require('./api');
 
 //Count total number of test to execute
 _app.countTotalTest = () => {

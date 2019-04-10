@@ -28,8 +28,10 @@ app.init = () => {
     });
 }
 
-//Execute
-app.init();
+//self initialize if required directly
+if ( require.main === module) {
+    app.init();
+}
 
 //Export app module
 module.exports = app;

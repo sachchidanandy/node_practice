@@ -22,6 +22,20 @@ environment.staging = {
     }
 }
 
+//Testing environment
+environment.testing = {
+    httpPort : 4000,
+    httpsPort : 4001,
+    envName : 'testing',
+    maxChecks : 5,
+    templateGlobal : {
+        'appName'  : 'UpTimeChecker',
+        'companyName' : 'Not A RealCompant.ltd',
+        'yearCreated' : '2019',
+        'baseUrl' : 'http://localhost:4000/'
+    }
+}
+
 //Production environment
 environment.production = {
     httpPort : 5000,
