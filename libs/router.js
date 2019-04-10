@@ -25,7 +25,8 @@ const router = {
     'ping' : handler.ping,
     'favicon.ico' : handler.favicon,
     'public' : handler.public,
-    'notFound' : handler.notFound
+    'notFound' : handler.notFound,
+    'examples/error' : handler.exampleError,
 };
 
 //Export module route

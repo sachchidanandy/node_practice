@@ -227,6 +227,12 @@ handler.checksList = (data, callback) => {
     }
 };
 
+//Example Error Handler
+handler.exampleError = (data, callback) => {
+    const _error = new Error('This is an example Error');
+    throw _error;
+};
+
 //Edit check
 handler.checksEdit = (data, callback) => {
     if (data.method === 'get') {

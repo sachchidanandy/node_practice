@@ -1,5 +1,5 @@
 /**
- * Library ffor storing and editing data
+ * Library for storing and editing data
  * 
  * @file data.js
  * @author Sachchidanand
