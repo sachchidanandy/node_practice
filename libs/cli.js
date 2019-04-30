@@ -179,7 +179,7 @@ cli.responders.listUsers = () => {
 			_data.read('user', user, (err, userData) => {
 				userData = _helper.convsertJsonToObject(userData);
 				if (!err && typeof(userData) === 'object') {
-					let line = `Name : ${userData.firstName} ${userData.lastName} phone : ${userData.phone} checks : ${userData.checks.length}`;
+					let line = `Name : ${userData.firstName} ${userData.lastName} phone : ${userData.phone} checks : ${userData.hasOwnProperty('checks') ? userData.checks.length : 0}`;
 					console.log(line);
 				}
 			});
